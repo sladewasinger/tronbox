@@ -2,7 +2,7 @@
 
 Tron bots that battle... in a box?
 
-## Project Info:
+# Project Info:
 
 - Node.js
 - Express API
