@@ -21,13 +21,13 @@ _Run everything from wsl (ubuntu)_
 
 ### Terminal 1 (Frontend - Vue.js):
 
-- `cd ./spa/src`
-- `npm run serve` (saved changes are automatically updated in running app)
+- `cd spa/src`
+- `npm run start` (saved changes are automatically updated in running app)
 
 ### Terminal 2 (Backend - Node.js Express API):
 
 - `cd api`
-- `npm run dev`
+- `npm run start`
 
 # Where I left off...
 
