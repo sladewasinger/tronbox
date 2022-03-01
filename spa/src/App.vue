@@ -1,15 +1,22 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js App" />
+  <!-- canvas single -->
+  <div class="row mt-5">
+    <div class="col-2" />
+    <div class="col-8">
+      <Canvas :canvas-id="'canvas-one'" ref="childCanvas" />
+    </div>
+    <div class="col-2" />
+  </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import Canvas from "./components/canvas/Canvas.vue";
 
 export default {
   name: "App",
   components: {
-    HelloWorld,
+    Canvas,
   },
 };
 </script>
