@@ -2,21 +2,19 @@
   <img alt="Vue logo" src="./assets/logo.png" />
   <!-- canvas single -->
   <div class="row mt-5">
-    <div class="col-2" />
     <div class="col-8">
-      <Canvas :canvas-id="'canvas-one'" ref="childCanvas" />
+      <GridCanvas :canvas-id="'grid'" ref="childCanvs" />
     </div>
-    <div class="col-2" />
   </div>
 </template>
 
 <script>
-import Canvas from "./components/canvas/Canvas.vue";
+import GridCanvas from "./components/grid-canvas/grid-canvas.vue";
 
 export default {
   name: "App",
   components: {
-    Canvas,
+    GridCanvas,
   },
 };
 </script>
