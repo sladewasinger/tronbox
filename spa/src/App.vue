@@ -1,6 +1,5 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <!-- canvas single -->
+  <h1>Tronbox</h1>
   <div class="row mt-5">
     <div class="col-8">
       <GridCanvas :canvas-id="'grid'" ref="childCanvs" />
