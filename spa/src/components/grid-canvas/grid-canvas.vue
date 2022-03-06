@@ -62,7 +62,10 @@ export default {
     },
     grid: undefined,
     trails: [],
-    renderStuff: {},
+    renderStuff: {
+      grid: undefined,
+      trails: {}
+    },
   }),
   methods: {
     reset() {
@@ -92,9 +95,9 @@ export default {
           renderedCell.fillColor = fillColor;
 
           var cell = {
-            ownerId: undefined,
+            id: undefined,
             get occupied() {
-              return !!this.ownerId;
+              return this.id != undefined;
             }
           };
           this.grid[x].push(cell);
@@ -105,33 +108,32 @@ export default {
       let trail = {
         head: new Point(x, y),
         tail: [], // queue type?
-        color: "#F00",
+        color: "#" + Math.floor(Math.random() * 16777215 / 2 + 16777215 / 2).toString(16),
         alive: true,
-        ownerId: 1,
+        id: this.trails.length,
         getMove: ai_v1_Clockwise,
         applyMove(grid, headPos, moveDir) {
-          if (moveDir == MoveDirection.STALL) {
-            console.log(`${this.ownerId} returned stall`);
-            return;
-          }
           let move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
-          if (move.x < 0 || move.x >= grid.length) {
-            this.alive = false;
-            return;
+          if (moveDir != MoveDirection.STALL) {
+            if (move.x < 0 || move.x >= grid.length) {
+              console.log("ded");
+              this.alive = false;
+              return;
+            }
+            if (move.y < 0 || move.y >= grid[0].length) {
+              console.log("ded");
+              this.alive = false;
+              return;
+            }
+            if (grid[move.x][move.y].occupied) {
+              console.log(`${this.id} hit other snake at: (" + x + ", " + y + ")`);
+              this.alive = false;
+              return;
+            }
+          } else {
+            console.log(`${this.id} returned stall`);
           }
-          if (move.y < 0 || move.y >= grid[0].length) {
-            this.alive = false;
-            return;
-          }
-          grid.forEach((col, x) => {
-            col.forEach((cell, y) => {
-              if (move.x == x && move.y == y && cell.occupied) {
-                this.alive = false;
-                console.log(`${this.ownerId} hit other snake at: (" + x + ", " + y + ")`);
-                return;
-              }
-            });
-          });
+
           this.tail.push(this.head);
           this.head = move;
         },
@@ -139,9 +141,9 @@ export default {
       return trail;
     },
     start() {
-      var trail = this.createTrail(0, 0);
+      var trail = this.createTrail(Math.round(Math.random() * 9), Math.round(Math.random() * 9));
       this.trails.push(trail);
-      this.grid[trail.head.x][trail.head.y].ownerId = trail.ownerId;
+      this.grid[trail.head.x][trail.head.y].id = trail.id;
       this.gameLoop();
     },
     render() {
@@ -152,10 +154,8 @@ export default {
         this.renderStuff.grid = this.grid.map((col, x) =>
           col.map((el, y) => {
             var cell = new paper.Path.Rectangle(
-              x * cellWidth,
-              y * cellWidth,
-              cellWidth,
-              cellWidth
+              new Point(x * cellWidth, y * cellWidth),
+              new Size(cellWidth, cellWidth)
             );
             cell.strokeColor = "#290";
             let fillColor = "#090909";
@@ -172,15 +172,43 @@ export default {
       }
       for (let trail of this.trails) {
         for (let point of [...trail.tail, trail.head]) {
-          this.renderStuff.grid[point.x][point.y].fillColor = trail.color;
+          let tailCell = this.renderStuff.grid[point.x][point.y];
+          tailCell.fillColor = trail.color;
+          tailCell.strokeColor = "#290";
+          tailCell.strokeWidth = 1;
+          tailCell.shadowColor = "#000";
+          tailCell.shadowBlur = 10;
         }
+        let headCell = this.renderStuff.grid[trail.head.x][trail.head.y];
+        headCell.strokeColor = trail.color;
+        headCell.strokeWidth = 10;
+        headCell.shadowColor = "#000";
+        headCell.shadowBlur = 20;
+        headCell.bringToFront();
+
+        if (!this.renderStuff.trails[trail.id]) {
+          let circle = new paper.Path.Circle(headCell.position, 15);
+          circle.fillColor = trail.color;
+          circle.strokeColor = "#FFF";
+          circle.strokeWidth = 10;
+          this.renderStuff.trails[trail.id] = circle;
+        }
+        if (!trail.alive) {
+          let triangle = new paper.Path.RegularPolygon(headCell.position, 3, 25);
+          triangle.fillColor = '#000';
+          this.renderStuff.trails[trail.id] = triangle;
+        }
+        let c = this.renderStuff.trails[trail.id];
+        c.position = headCell.position;
+        c.bringToFront();
       }
     },
     iterateTrails() {
       for (let trail of this.trails.filter(x => x.alive)) {
         var moveDir = trail.getMove(this.grid, trail.head);
         trail.applyMove(this.grid, trail.head, moveDir);
-        this.grid[trail.head.x][trail.head.y].ownerId = trail.ownerId;
+        this.grid[trail.head.x][trail.head.y].id = trail.id;
+        console.log("moving", moveDir);
       }
     },
     gameLoop() {
