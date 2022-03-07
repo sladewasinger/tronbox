@@ -7,9 +7,7 @@ export class Renderer {
   };
 
   reset() {
-    console.log(paper);
     paper.project?.activeLayer?.removeChildren();
-
     /* 
       Vue.js doesn't reset global paper object
       when app re-compiles during development.

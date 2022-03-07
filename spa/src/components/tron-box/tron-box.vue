@@ -51,7 +51,6 @@ export default {
     addTrail() {
       this.engine.addTrail(new Function('return ' + this.aiJs)());
     },
-
     reset() {
       this.engine.reset();
       this.renderer.reset();

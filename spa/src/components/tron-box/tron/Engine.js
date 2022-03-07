@@ -9,11 +9,11 @@ export class Engine {
     window.Point = Point;
     window.Grid = Grid;
 
+    this.paused = true;
     this.reset();
   }
 
   reset() {
-    this.paused = true;
     this.path = null;
     this.point = {
       x: 0,
@@ -50,8 +50,12 @@ export class Engine {
       alive: true,
       id: id,
       getMove: getMove,
-      applyMove(grid, headPos, moveDir) {
-        //let moveDirPoint = Constants.MoveDirection[moveDir];
+      applyMove(grid, trails, headPos, moveDir) {
+        if (!moveDir || moveDir.x == undefined || moveDir.y == undefined) {
+          console.log("Error - moveDir is not a valid Point object:", moveDir);
+          console.log("Defaulting movDir to RIGHT");
+          moveDir = Constants.MoveDirection.RIGHT;
+        }
         if (!Object.keys(Constants.MoveDirection).map(key => Constants.MoveDirection[key]).some(x => moveDir.x == x.x && moveDir.y == x.y)) {
           console.log("Invalid move supplied! Defaulting to the RIGHT. Move supplied: ", moveDir);
           moveDir = Constants.MoveDirection.RIGHT;
@@ -66,7 +70,10 @@ export class Engine {
           return;
         }
         if (grid[move.x][move.y].occupied) {
-          console.log(`${this.id} hit other snake at: (" + x + ", " + y + ")`);
+          var otherTrailId = grid[move.x][move.y].id;
+          var otherTrail = trails.find(x => x.id == otherTrailId);
+          console.log(`%cTRAIL [${this.id}] %chit %cTRAIL [${otherTrail.id}]`, 'color: ' + this.color, 'color: auto', 'color: ' + otherTrail.color);
+          //console.log(`Trail '${this.id}' %chit other trail '${grid[move.x][move.y].id}' at: (${x},${y})`);
           this.alive = false;
           return;
         }
@@ -102,8 +109,12 @@ export class Engine {
 
   iterateTrails() {
     for (let trail of this.trails.filter(x => x.alive)) {
-      var moveDir = trail.getMove(this.grid, trail.head);
-      trail.applyMove(this.grid, trail.head, moveDir);
+      try {
+        var moveDir = trail.getMove(this.grid, trail.head);
+      } catch (ex) {
+        console.log("Error executing script: ", ex);
+      }
+      trail.applyMove(this.grid, this.trails, trail.head, moveDir);
       this.grid[trail.head.x][trail.head.y].id = trail.id;
     }
   }
@@ -113,6 +124,10 @@ export class Engine {
   }
 
   resume() {
+    // console.log("TRAILS:");
+    // this.trails.forEach(trail => {
+    //   console.log(`%c TRAIL [${trail.id}] ${trail.color}`, 'color: ' + trail.color);
+    // })
     this.paused = false;
   }
 
