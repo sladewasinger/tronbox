@@ -1,6 +1,8 @@
-import { Constants } from "../models/Constants";
-import { Point } from "../models/Point";
-import { Grid } from "../models/GridExtensions";
+const Constants = require("../models/Constants");
+const Grid = require("../models/GridExtensions");
+const Point = require("../models/Point");
+//import { Point } from "../models/Point";
+//import { Grid } from "../models/GridExtensions";
 
 export function ai_Clockwise_v1(grid, headPos) {
   var move = Constants.MoveDirection.RIGHT;
@@ -15,8 +17,7 @@ export function ai_Clockwise_v1(grid, headPos) {
         move = Constants.MoveDirection.UP;
         nextPos = new Point(headPos.x + move.x, headPos.y + move.y);
         if (headPos.y - 1 < 0 || Grid.isOccupied(grid, nextPos)) {
-          // move = MoveDirection.STALL;
-          // we're about to die...
+          // move = new Point(0, 2);
         }
       }
     }

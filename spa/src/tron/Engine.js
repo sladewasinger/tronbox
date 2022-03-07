@@ -1,6 +1,7 @@
 import { Constants } from "./models/Constants";
-import { Point } from "./models/Point";
+import { Point } from "paper/dist/paper-core";
 import { ai_Clockwise_v1 } from "./ai/clockwise.ai";
+import { Grid } from "./models/GridExtensions";
 
 export class Engine {
   constructor() {
@@ -32,15 +33,20 @@ export class Engine {
     }
   };
 
-  createTrail(x, y, color, id) {
+  createTrail(x, y, color, id, getMove) {
     let trail = {
       head: new Point(x, y),
       tail: [], // queue type?
       color: color,
       alive: true,
       id: id,
-      getMove: ai_Clockwise_v1,
+      getMove: getMove,
       applyMove(grid, headPos, moveDir) {
+        //let moveDirPoint = Constants.MoveDirection[moveDir];
+        if (!Object.keys(Constants.MoveDirection).map(key => Constants.MoveDirection[key]).some(x => moveDir.x == x.x && moveDir.y == x.y)) {
+          console.log("Invalid move supplied! Defaulting to the RIGHT. Move supplied: ", moveDir);
+          moveDir = Constants.MoveDirection.RIGHT;
+        }
         let move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
         if (move.x < 0 || move.x >= grid.length) {
           this.alive = false;
@@ -63,7 +69,7 @@ export class Engine {
     return trail;
   }
 
-  addTrail() {
+  addTrail(aiJs = ai_Clockwise_v1) {
     var openSpots = this.grid
       .map((col, x) => col.map((cell, y) => ({ occupied: cell.occupied, position: new Point(x, y) })))
       .flatMap(x => x)
@@ -80,13 +86,17 @@ export class Engine {
       return;
     }
     var id = this.trails.length;
-    var trail = this.createTrail(pos.x, pos.y, color, id);
+    var trail = this.createTrail(pos.x, pos.y, color, id, aiJs);
     this.trails.push(trail);
     this.grid[trail.head.x][trail.head.y].id = trail.id;
   }
 
   iterateTrails() {
     for (let trail of this.trails.filter(x => x.alive)) {
+      console.log(trail.getMove);
+      window.Constants = Constants;
+      window.Point = Point;
+      window.Grid = Grid;
       var moveDir = trail.getMove(this.grid, trail.head);
       trail.applyMove(this.grid, trail.head, moveDir);
       this.grid[trail.head.x][trail.head.y].id = trail.id;
