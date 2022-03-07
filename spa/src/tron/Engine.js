@@ -42,12 +42,10 @@ export class Engine {
       applyMove(grid, headPos, moveDir) {
         let move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
         if (move.x < 0 || move.x >= grid.length) {
-          console.log("ded");
           this.alive = false;
           return;
         }
         if (move.y < 0 || move.y >= grid[0].length) {
-          console.log("ded");
           this.alive = false;
           return;
         }
@@ -80,7 +78,6 @@ export class Engine {
       var moveDir = trail.getMove(this.grid, trail.head);
       trail.applyMove(this.grid, trail.head, moveDir);
       this.grid[trail.head.x][trail.head.y].id = trail.id;
-      console.log("moving", moveDir);
     }
   }
 
