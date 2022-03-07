@@ -13,6 +13,7 @@ export class Engine {
     this.trails = [];
     this.gridWidth = 10;
     this.colorIndex = 0;
+    this.createGrid();
   }
 
   createGrid() {
@@ -63,14 +64,13 @@ export class Engine {
   }
 
   addTrail() {
-    var trail = this.createTrail(Math.round(Math.random() * 9), Math.round(Math.random() * 9));
+    var pos;
+    do {
+      pos = new Point(Math.round(Math.random() * 9), Math.round(Math.random() * 9));
+    } while (this.grid[pos.x][pos.y].occupied);
+    var trail = this.createTrail(pos.x, pos.y);
     this.trails.push(trail);
     this.grid[trail.head.x][trail.head.y].id = trail.id;
-  }
-
-  start() {
-    this.createGrid();
-    this.addTrail();
   }
 
   iterateTrails() {

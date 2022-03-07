@@ -15,6 +15,10 @@ export class Renderer {
     this.colorIndex = 0;
   };
 
+  reset() {
+    this.scope.project.activeLayer.removeChildren();
+  }
+
   render(grid, trails) {
     if (this.grid === undefined) {
       var cellWidth = 50;
@@ -25,7 +29,7 @@ export class Renderer {
             new Point(x * cellWidth, y * cellWidth),
             new Size(cellWidth, cellWidth)
           );
-          cell.strokeColor = "#290";
+          cell.strokeColor = "#444"; // #290
           let fillColor = "#090909";
           // Color corners of grid gray:
           // if (
@@ -47,7 +51,6 @@ export class Renderer {
       for (let point of trail.tail) {
         let trailCell = this.grid[point.x][point.y];
         trailCell.fillColor = trail.color;
-        trailCell.strokeColor = "#290";
         trailCell.strokeWidth = 1;
         trailCell.shadowColor = "#000";
         trailCell.shadowBlur = 10;
