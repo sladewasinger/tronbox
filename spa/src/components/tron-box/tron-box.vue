@@ -8,7 +8,7 @@
       <canvas :id="canvasId" class="canvas-style" />
     </div>
     <div>
-      <textarea>TESTING</textarea>
+      <textarea class="editor">TESTING</textarea>
     </div>
   </div>
 </template>
@@ -64,13 +64,18 @@ export default {
 }
 
 .grid-box {
+  padding: 50px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 550px 1fr;
   grid-template-rows: 200px 1fr;
   column-gap: 10px;
 }
 
 .header {
   grid-column: 1 / 3;
+}
+
+.editor {
+  width: 100%;
 }
 </style>

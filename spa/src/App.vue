@@ -1,5 +1,5 @@
 <template>
-  <TronBox :ref="childCanvs" canvas-id="'grid'" />
+  <TronBox :ref="childCanvs" canvas-id="grid" />
 </template>
 
 <script>

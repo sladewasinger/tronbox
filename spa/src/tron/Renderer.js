@@ -1,11 +1,35 @@
 const paper = require("paper");
-import { Color, Point, Size } from "paper/dist/paper-core";
 
 export class Renderer {
   constructor(canvasId) {
+    paper.install(window);
     this.canvasId = canvasId;
-    this.scope = new paper.PaperScope();
-    this.scope.setup(this.canvasId);
+    // paper = new paper.PaperScope();
+    // paper.setup(this.canvasId);
+    if (paper.projects?.length) {
+      paper.projects.forEach(project => {
+        project.remove();
+
+        console.log("removed");
+        // console.log("SELECT ALL: ", project.selectAll());
+        // project.selectAll().forEach(child => {
+        //   child.remove();
+        //   console.log("Removed child!");
+
+        // });
+      });
+      console.log("Removed project");
+    }
+    paper.setup(this.canvasId);
+
+    if (paper.project) {
+      console.log("yeS");
+      paper.project.layers.forEach(layer => {
+        layer.removeChildren();
+        console.log("Removed children");
+      })
+    }
+    paper.project.activateLayer?.removeChildren();
 
     this.grid = undefined;
     this.trailStuff = {};
@@ -16,7 +40,7 @@ export class Renderer {
   };
 
   reset() {
-    this.scope.project.activeLayer.removeChildren();
+    paper.project.activeLayer.removeChildren();
   }
 
   render(grid, trails) {
@@ -26,8 +50,8 @@ export class Renderer {
       this.grid = grid.map((col, x) =>
         col.map((el, y) => {
           var cell = new paper.Path.Rectangle(
-            new Point(x * cellWidth, y * cellWidth),
-            new Size(cellWidth, cellWidth)
+            new paper.Point(x * cellWidth, y * cellWidth),
+            new paper.Size(cellWidth, cellWidth)
           );
           cell.strokeColor = "#444"; // #290
           let fillColor = "#090909";
@@ -60,7 +84,7 @@ export class Renderer {
         trailStuff.wireframe = new paper.Path(
           [...trail.tail, trail.head].map(x => this.grid[x.x][x.y].position)
         );
-        trailStuff.wireframe.strokeColor = new Color(0, 0, 0, 0.25);
+        trailStuff.wireframe.strokeColor = new paper.Color(0, 0, 0, 0.25);
         trailStuff.wireframe.strokeWidth = 5;
       }
       if (trailStuff.wireframe.segments.at(-1).x != trail.head.x
@@ -84,15 +108,18 @@ export class Renderer {
         headIndicator.strokeWidth = 10;
         trailStuff.headIndicator = headIndicator;
       }
-      if (!trail.alive) {
+      if (!trail.alive && !trailStuff.deadSymbolHead) {
         headIndicator.remove();
         let triangle = new paper.Path.RegularPolygon(headCell.position, 3, 25);
         triangle.fillColor = '#000';
-        headIndicator = triangle;
+        triangle.position = headCell.position;
+        trailStuff.deadSymbolHead = triangle;
       }
-      headIndicator.position = headCell.position;
-      headIndicator.bringToFront();
+
       trailStuff.wireframe.bringToFront();
+      headIndicator.bringToFront();
+      headIndicator.position = headCell.position;
+      trailStuff.deadSymbolHead?.bringToFront();
     }
   }
 }

@@ -68,7 +68,7 @@ export class Engine {
       .map((col, x) => col.map((cell, y) => ({ occupied: cell.occupied, position: new Point(x, y) })))
       .flatMap(x => x)
       .filter(x => !x.occupied);
-    console.log(openSpots);
+
     if (openSpots.length < 1) {
       console.log("No open spots to spawn in a tron bike!");
       return;
