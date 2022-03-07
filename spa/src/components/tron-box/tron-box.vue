@@ -11,7 +11,7 @@ import { Renderer } from "../../tron/Renderer";
 import { Engine } from "../../tron/Engine";
 
 export default {
-  name: "GridCanvas",
+  name: "Tronbox",
   props: {
     canvasId: {
       type: String,

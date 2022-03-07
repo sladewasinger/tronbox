@@ -2,18 +2,18 @@
   <h1>Tronbox</h1>
   <div class="row mt-5">
     <div class="col-8">
-      <GridCanvas :ref="childCanvs" canvas-id="'grid'" />
+      <TronBox :ref="childCanvs" canvas-id="'grid'" />
     </div>
   </div>
 </template>
 
 <script>
-import GridCanvas from "./components/grid-canvas/grid-canvas.vue";
+import TronBox from "./components/tron-box/tron-box.vue";
 
 export default {
   name: "App",
   components: {
-    GridCanvas,
+    TronBox
   },
 };
 </script>
