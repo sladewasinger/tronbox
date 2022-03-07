@@ -61,11 +61,9 @@ export class Engine {
           moveDir = Constants.MoveDirection.RIGHT;
         }
         let move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
-        if (move.x < 0 || move.x >= grid.length) {
-          this.alive = false;
-          return;
-        }
-        if (move.y < 0 || move.y >= grid[0].length) {
+        if ((move.x < 0 || move.x >= grid.length) ||
+          (move.y < 0 || move.y >= grid[0].length)) {
+          console.log(`%cTRAIL [${this.id}] %ctried to escape the grid! They failed...`, 'color: ' + this.color, 'color: auto');
           this.alive = false;
           return;
         }
@@ -73,7 +71,6 @@ export class Engine {
           var otherTrailId = grid[move.x][move.y].id;
           var otherTrail = trails.find(x => x.id == otherTrailId);
           console.log(`%cTRAIL [${this.id}] %chit %cTRAIL [${otherTrail.id}]`, 'color: ' + this.color, 'color: auto', 'color: ' + otherTrail.color);
-          //console.log(`Trail '${this.id}' %chit other trail '${grid[move.x][move.y].id}' at: (${x},${y})`);
           this.alive = false;
           return;
         }
