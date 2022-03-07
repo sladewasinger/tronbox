@@ -40,12 +40,12 @@ export class Renderer {
         }
         for (let trail of trails) {
             for (let point of [...trail.tail, trail.head]) {
-                let tailCell = this.grid[point.x][point.y];
-                tailCell.fillColor = trail.color;
-                tailCell.strokeColor = "#290";
-                tailCell.strokeWidth = 1;
-                tailCell.shadowColor = "#000";
-                tailCell.shadowBlur = 10;
+                let trailCell = this.grid[point.x][point.y];
+                trailCell.fillColor = trail.color;
+                trailCell.strokeColor = "#290";
+                trailCell.strokeWidth = 1;
+                trailCell.shadowColor = "#000";
+                trailCell.shadowBlur = 10;
             }
             let headCell = this.grid[trail.head.x][trail.head.y];
             headCell.strokeColor = trail.color;
@@ -53,7 +53,6 @@ export class Renderer {
             headCell.shadowColor = "#000";
             headCell.shadowBlur = 20;
             headCell.bringToFront();
-
             if (!this.trails[trail.id]) {
                 let circle = new paper.Path.Circle(headCell.position, 15);
                 circle.fillColor = trail.color;

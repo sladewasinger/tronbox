@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>The Grid</h3>
-    <button v-on:click="addTrail()">Add tron bike trail</button>
+    <button @click="addTrail()">Add tron bike trail</button>
     <canvas :id="canvasId" class="canvas-style" />
   </div>
 </template>
@@ -12,7 +12,12 @@ import { Engine } from "../../tron/Engine";
 
 export default {
   name: "GridCanvas",
-  props: ["canvasId"],
+  props: {
+    canvasId: {
+      type: String,
+      required: true
+    }
+  },
   data: () => ({
     renderer: undefined,
     engine: undefined,
@@ -32,6 +37,12 @@ export default {
       colorIndex: 0
     },
   }),
+  mounted() {
+    this.renderer = new Renderer(this.canvasId);
+    this.engine = new Engine();
+
+    this.start();
+  },
   methods: {
     reset() {
       this.scope.project.activeLayer.removeChildren();
@@ -96,13 +107,7 @@ export default {
       this.renderer.render(this.engine.grid, this.engine.trails);
       setTimeout(this.loop.bind(this), 50);
     }
-  },
-  mounted() {
-    this.renderer = new Renderer(this.canvasId);
-    this.engine = new Engine();
-
-    this.start();
-  },
+  }
 };
 </script>
 

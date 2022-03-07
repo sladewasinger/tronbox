@@ -2,7 +2,7 @@
   <h1>Tronbox</h1>
   <div class="row mt-5">
     <div class="col-8">
-      <GridCanvas :canvas-id="'grid'" ref="childCanvs" />
+      <GridCanvas :ref="childCanvs" canvas-id="'grid'" />
     </div>
   </div>
 </template>
