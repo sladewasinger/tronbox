@@ -58,7 +58,7 @@ export class Renderer {
 
       if (!trailStuff.wireframe) {
         trailStuff.wireframe = new paper.Path(
-          trail.tail.map(x => this.grid[x.x][x.y].position)
+          [...trail.tail, trail.head].map(x => this.grid[x.x][x.y].position)
         );
         trailStuff.wireframe.strokeColor = new Color(0, 0, 0, 0.25);
         trailStuff.wireframe.strokeWidth = 5;
