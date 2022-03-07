@@ -2,34 +2,18 @@ const paper = require("paper");
 
 export class Renderer {
   constructor(canvasId) {
-    paper.install(window);
     this.canvasId = canvasId;
-    // paper = new paper.PaperScope();
-    // paper.setup(this.canvasId);
-    if (paper.projects?.length) {
-      paper.projects.forEach(project => {
-        project.remove();
-
-        console.log("removed");
-        // console.log("SELECT ALL: ", project.selectAll());
-        // project.selectAll().forEach(child => {
-        //   child.remove();
-        //   console.log("Removed child!");
-
-        // });
-      });
-      console.log("Removed project");
-    }
+    /* 
+      Vue.js doesn't reset global paper object
+      when app re-compiles during development.
+      This leads to bugs and "memory-leaks".
+      The best solution I can come up with:
+    */
+    paper.projects.forEach(project => {
+      console.log("Unexpected project found. Removing...");
+      project.remove();
+    });
     paper.setup(this.canvasId);
-
-    if (paper.project) {
-      console.log("yeS");
-      paper.project.layers.forEach(layer => {
-        layer.removeChildren();
-        console.log("Removed children");
-      })
-    }
-    paper.project.activateLayer?.removeChildren();
 
     this.grid = undefined;
     this.trailStuff = {};
