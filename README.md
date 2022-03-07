@@ -2,7 +2,7 @@
 
 Tron bots that battle... in a box?
 
-![picture of tronbox in action](spa/src/assets/tronbox_dev_1.png)
+![picture of tronbox in action](spa/src/assets/tronbox_dev_2.png)
 
 # Project Info:
 
