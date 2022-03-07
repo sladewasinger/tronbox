@@ -8,5 +8,14 @@ module.exports = defineConfig({
       }
     }
   },
-  transpileDependencies: true
-})
+  transpileDependencies: true,
+  css: {
+    loaderOptions: {
+      sass: {
+        additionalData: `
+          @import '@/styles/global.scss';
+        `
+      }
+    }
+  }
+});

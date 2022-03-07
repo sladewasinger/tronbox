@@ -1,10 +1,5 @@
 <template>
-  <h1>Tronbox</h1>
-  <div class="row mt-5">
-    <div class="col-8">
-      <TronBox :ref="childCanvs" canvas-id="'grid'" />
-    </div>
-  </div>
+  <TronBox :ref="childCanvs" canvas-id="'grid'" />
 </template>
 
 <script>
@@ -19,6 +14,12 @@ export default {
 </script>
 
 <style>
+@import "css-reset-and-normalize/css/reset-and-normalize.min.css";
+
+body {
+  background-color: #222;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -7,6 +7,19 @@ Ctrl-d Moves cursor & screen down ½ page
 Ctrl-b Moves screen up one page, cursor to last line  
 Ctrl-f Moves screen down one page, cursor to first line
 
+# Select commands (visual mode)
+
+- `v` - enter visual mode:
+
+  - replace `a` with `i` to select only contents instead of the whole thing including boundaries (like "" or [])
+
+- `a+w` - word
+- `a+s` - sentence
+- `a+p` - paragraph
+- `a+<` - a <> block
+- `a+(` - a () block
+- `a+"` - a double-quoted string "sdlkjf"
+
 # Delete commands
 
 `diw` - Delete the entire word under the cursor  

@@ -32,13 +32,13 @@ export class Engine {
     }
   };
 
-  createTrail(x, y) {
+  createTrail(x, y, color, id) {
     let trail = {
       head: new Point(x, y),
       tail: [], // queue type?
-      color: Constants.colors[this.colorIndex++],
+      color: color,
       alive: true,
-      id: this.trails.length,
+      id: id,
       getMove: ai_Clockwise_v1,
       applyMove(grid, headPos, moveDir) {
         let move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
@@ -64,11 +64,23 @@ export class Engine {
   }
 
   addTrail() {
-    var pos;
-    do {
-      pos = new Point(Math.round(Math.random() * 9), Math.round(Math.random() * 9));
-    } while (this.grid[pos.x][pos.y].occupied);
-    var trail = this.createTrail(pos.x, pos.y);
+    var openSpots = this.grid
+      .map((col, x) => col.map((cell, y) => ({ occupied: cell.occupied, position: new Point(x, y) })))
+      .flatMap(x => x)
+      .filter(x => !x.occupied);
+    console.log(openSpots);
+    if (openSpots.length < 1) {
+      console.log("No open spots to spawn in a tron bike!");
+      return;
+    }
+    var pos = openSpots[Math.floor(Math.random() * openSpots.length)].position;
+    var color = Constants.colors[this.colorIndex++];
+    if (this.colorIndex >= Constants.colors.length) {
+      console.log("No more colors to create a trail with...");
+      return;
+    }
+    var id = this.trails.length;
+    var trail = this.createTrail(pos.x, pos.y, color, id);
     this.trails.push(trail);
     this.grid[trail.head.x][trail.head.y].id = trail.id;
   }

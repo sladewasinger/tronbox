@@ -7,4 +7,11 @@ export class Grid {
         }
         return false;
     }
+
+    static flatten(grid) {
+        return grid
+            .map((col, x) => col.map((cell, y) => ({ occupied: cell.occupied, position: new Point(x, y) })))
+            .flatMap(x => x)
+            .filter(x => !x.occupied);
+    }
 }

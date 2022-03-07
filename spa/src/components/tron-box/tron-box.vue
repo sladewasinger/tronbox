@@ -1,8 +1,15 @@
 <template>
-  <div>
-    <h3>The Grid</h3>
-    <button @click="addTrail()">Add tron bike trail</button>
-    <canvas :id="canvasId" class="canvas-style" />
+  <div class="grid-box">
+    <div class="header">
+      <h1>Battle Tron</h1>
+      <button @click="addTrail()">Add tron bike trail</button>
+    </div>
+    <div>
+      <canvas :id="canvasId" class="canvas-style" />
+    </div>
+    <div>
+      <textarea>TESTING</textarea>
+    </div>
   </div>
 </template>
 
@@ -54,5 +61,16 @@ export default {
   display: block;
   margin: auto;
   box-shadow: 0 0 18px 5px black;
+}
+
+.grid-box {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 200px 1fr;
+  column-gap: 10px;
+}
+
+.header {
+  grid-column: 1 / 3;
 }
 </style>
