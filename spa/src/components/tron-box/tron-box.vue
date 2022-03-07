@@ -3,7 +3,6 @@
     <h3>The Grid</h3>
     <button @click="addTrail()">Add tron bike trail</button>
     <canvas :id="canvasId" class="canvas-style" />
-    <
   </div>
 </template>
 
