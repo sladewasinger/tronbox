@@ -60,7 +60,19 @@ export class Engine {
           console.log("Invalid move supplied! Defaulting to the RIGHT. Move supplied: ", moveDir);
           moveDir = Constants.MoveDirection.RIGHT;
         }
+
         let move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
+        if (this.tail && this.tail.length) {
+          let neck = this.tail[this.tail.length - 1];
+          if (neck.x == move.x && neck.y == move.y) {
+            console.log("Invalid move turning in on your neck - defaulting to RIGHT (or left)");
+            moveDir = (moveDir == Constants.MoveDirection.RIGHT
+              ? Constants.MoveDirection.LEFT
+              : Constants.MoveDirection.RIGHT);
+            move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
+          }
+        }
+
         if ((move.x < 0 || move.x >= grid.length) ||
           (move.y < 0 || move.y >= grid[0].length)) {
           console.log(`%cTRAIL [${this.id}] %ctried to escape the grid! They failed...`, 'color: ' + this.color, 'color: auto');
