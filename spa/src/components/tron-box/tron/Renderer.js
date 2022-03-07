@@ -3,10 +3,17 @@ const paper = require("paper");
 export class Renderer {
   constructor(canvasId) {
     this.canvasId = canvasId;
+    this.reset();
+  };
+
+  reset() {
+    console.log(paper);
+    paper.project?.activeLayer?.removeChildren();
+
     /* 
       Vue.js doesn't reset global paper object
       when app re-compiles during development.
-      This leads to bugs and "memory-leaks".
+      This leads to bugs and "memory-leaks".m
       The best solution I can come up with:
     */
     paper.projects.forEach(project => {
@@ -21,10 +28,6 @@ export class Renderer {
       "#02654B", "#188DBF", "#22379B", "#7209b7",
       "#f72585"];
     this.colorIndex = 0;
-  };
-
-  reset() {
-    paper.project.activeLayer.removeChildren();
   }
 
   render(grid, trails) {

@@ -5,6 +5,15 @@ import { Grid } from "./models/GridExtensions";
 
 export class Engine {
   constructor() {
+    window.Constants = Constants;
+    window.Point = Point;
+    window.Grid = Grid;
+
+    this.reset();
+  }
+
+  reset() {
+    this.paused = true;
     this.path = null;
     this.point = {
       x: 0,
@@ -93,17 +102,24 @@ export class Engine {
 
   iterateTrails() {
     for (let trail of this.trails.filter(x => x.alive)) {
-      console.log(trail.getMove);
-      window.Constants = Constants;
-      window.Point = Point;
-      window.Grid = Grid;
       var moveDir = trail.getMove(this.grid, trail.head);
       trail.applyMove(this.grid, trail.head, moveDir);
       this.grid[trail.head.x][trail.head.y].id = trail.id;
     }
   }
 
+  pause() {
+    this.paused = true;
+  }
+
+  resume() {
+    this.paused = false;
+  }
+
   loop() {
+    if (this.paused) {
+      return;
+    }
     this.iterateTrails();
   }
 }

@@ -2,21 +2,25 @@
   <div class="grid-box">
     <div class="header">
       <h1>Battle Tron</h1>
-      <button @click="addTrail()">Add tron bike trail</button>
     </div>
     <div>
       <canvas :id="canvasId" class="canvas-style" />
     </div>
     <div>
+      <div class="controls">
+        <button class="btn btn-dark" @click="addTrail()">ADD</button>
+        <button class="btn btn-dark" @click="reset()">RESET</button>
+        <button class="btn btn-dark" @click="togglePause()">{{ pauseBtnText }}</button>
+      </div>
       <textarea v-model="aiJs" class="editor">TESTING</textarea>
     </div>
   </div>
 </template>
 
 <script>
-import { Renderer } from "../../tron/Renderer";
-import { Engine } from "../../tron/Engine";
-import { ai_Clockwise_v1 } from "@/tron/ai/clockwise.ai";
+import { Renderer } from "./tron/Renderer";
+import { Engine } from "./tron/Engine";
+import { ai_Clockwise_v1 } from "./tron/ai/clockwise.ai";
 
 export default {
   name: "TronBox",
@@ -31,21 +35,39 @@ export default {
     renderer: undefined,
     engine: undefined
   }),
+  computed: {
+    pauseBtnText: function () {
+      return this.engine?.paused ? 'Play' : 'Pause';
+    }
+  },
   mounted() {
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
     this.aiJs = ai_Clockwise_v1.toString();
     this.start();
   },
+
   methods: {
     addTrail() {
       this.engine.addTrail(new Function('return ' + this.aiJs)());
+    },
+
+    reset() {
+      this.engine.reset();
+      this.renderer.reset();
     },
     start() {
       this.addTrail();
       this.addTrail();
       this.addTrail();
       this.loop();
+    },
+    togglePause() {
+      if (this.engine.paused) {
+        this.engine.resume();
+      } else {
+        this.engine.pause();
+      }
     },
     loop() {
       this.engine.loop();
@@ -70,12 +92,20 @@ export default {
   padding: 50px;
   display: grid;
   grid-template-columns: 550px 1fr;
-  grid-template-rows: 200px 1fr;
+  grid-template-rows: 100px 1fr;
   column-gap: 10px;
 }
 
 .header {
   grid-column: 1 / 3;
+}
+
+.controls {
+  text-align: left;
+  padding-bottom: 5px;
+  button {
+    margin-right: 5px;
+  }
 }
 
 .editor {
