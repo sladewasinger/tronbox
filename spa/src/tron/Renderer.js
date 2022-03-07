@@ -1,5 +1,5 @@
 const paper = require("paper");
-import { Point, Size } from "paper/dist/paper-core";
+import { Color, Point, Size } from "paper/dist/paper-core";
 
 export class Renderer {
   constructor(canvasId) {
@@ -57,7 +57,8 @@ export class Renderer {
         trailStuff.wireframe = new paper.Path(
           trail.tail.map(x => this.grid[x.x][x.y].position)
         );
-        trailStuff.wireframe.strokeColor = "#000";
+        trailStuff.wireframe.strokeColor = new Color(0, 0, 0, 0.25);
+        trailStuff.wireframe.strokeWidth = 5;
       }
       if (trailStuff.wireframe.segments.at(-1).x != trail.head.x
         && trailStuff.wireframe.segments.at(-1).y != trail.head.y) {
