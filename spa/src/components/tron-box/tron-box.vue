@@ -5,7 +5,8 @@
     </div>
     <div class="flex-box-row">
       <div>
-        <canvas :id="canvasId" class="canvas-style" resize="true" />
+        <!-- Canvas will randomly get squished if width and height aren't manually set -->
+        <canvas :id="canvasId" class="canvas-style" resize="true" width="500" height="500" />
       </div>
       <div class="editor">
         <div class="controls">
