@@ -2,5 +2,6 @@
 // Put only variables, mixins, and functions.
 // This file gets pre-pended to every single css file
 // in this vue app.
-$background-color: #090909;
-$text-color: #eee;
+$background-color: rgb(9, 9, 9);
+$background-color-trans: rgba(9, 9, 9, 0.5);
+$text-color: rgb(221, 221, 221);
