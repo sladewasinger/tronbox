@@ -3,6 +3,22 @@ body {
   color: $text-color;
 }
 
+body:before {
+  content: "";
+  background-image: url("~@/assets/synthwave_1.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  background-blend-mode: darken;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  filter: blur(15px) brightness(25%);
+  z-index: -1;
+  position: fixed;
+}
+
 h1,
 h2,
 h3,

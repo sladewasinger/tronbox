@@ -3,16 +3,18 @@
     <div class="header">
       <h1>Battle Tron</h1>
     </div>
-    <div>
-      <canvas :id="canvasId" class="canvas-style" />
-    </div>
-    <div>
-      <div class="controls">
-        <button class="btn btn-dark" @click="addTrail()">ADD</button>
-        <button class="btn btn-dark" @click="reset()">RESET</button>
-        <button class="btn btn-dark" @click="togglePause()">{{ pauseBtnText }}</button>
+    <div class="flex-box-row">
+      <div>
+        <canvas :id="canvasId" class="canvas-style" resize="true" />
       </div>
-      <textarea v-model="aiJs" class="editor"></textarea>
+      <div class="editor">
+        <div class="controls">
+          <button class="btn btn-dark" @click="addTrail()">ADD</button>
+          <button class="btn btn-dark" @click="reset()">RESET</button>
+          <button class="btn btn-dark" @click="togglePause()">{{ pauseBtnText }}</button>
+        </div>
+        <textarea v-model="aiJs" class="code-area"></textarea>
+      </div>
     </div>
   </div>
 </template>
@@ -89,10 +91,31 @@ export default {
   box-shadow: 0 0 18px 5px black;
 }
 
+.editor {
+  min-width: 700px;
+
+  .controls {
+    text-align: left;
+    padding-bottom: 5px;
+    button {
+      margin-right: 5px;
+    }
+  }
+}
+
+.flex-box-row {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+}
+
 .grid-box {
   padding: 50px;
   display: grid;
-  grid-template-columns: 550px 1fr;
+  grid-template-columns: 1fr;
   grid-template-rows: 100px 1fr;
   column-gap: 10px;
 }
@@ -101,17 +124,9 @@ export default {
   grid-column: 1 / 3;
 }
 
-.controls {
-  text-align: left;
-  padding-bottom: 5px;
-  button {
-    margin-right: 5px;
-  }
-}
-
-.editor {
+.code-area {
   width: 100%;
-  height: 100%;
+  min-height: 600px;
   font-family: "Courier New", Courier, monospace;
   font-size: small;
 }
