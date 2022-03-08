@@ -1,26 +1,21 @@
-// const Constants = require("./models/Constants");
-// const Grid = require("../models/GridExtensions");
-// const Point = require("../models/Point");
-//import { Point } from "../models/Point";
-//import { Grid } from "../models/GridExtensions";
+function getMove(grid, headPos) {
+  var dir = Constants.MoveDirection;
 
-export function ai_Clockwise_v1(grid, headPos) {
-  var move = Constants.MoveDirection.RIGHT;
+  if (validMove(grid, headPos, dir.RIGHT)) return dir.RIGHT;
+  if (validMove(grid, headPos, dir.DOWN)) return dir.DOWN;
+  if (validMove(grid, headPos, dir.LEFT)) return dir.LEFT;
+  if (validMove(grid, headPos, dir.UP)) return dir.UP;
+
+  return dir.RIGHT;
+}
+
+function validMove(grid, headPos, move) {
   var nextPos = new Point(headPos.x + move.x, headPos.y + move.y);
-  if (headPos.x + 1 >= grid.length || Grid.isOccupied(grid, nextPos)) {
-    move = Constants.MoveDirection.DOWN;
-    nextPos = new Point(headPos.x + move.x, headPos.y + move.y);
-    if (headPos.y + 1 >= grid[0].length || Grid.isOccupied(grid, nextPos)) {
-      move = Constants.MoveDirection.LEFT;
-      nextPos = new Point(headPos.x + move.x, headPos.y + move.y);
-      if (headPos.x - 1 < 0 || Grid.isOccupied(grid, nextPos)) {
-        move = Constants.MoveDirection.UP;
-        nextPos = new Point(headPos.x + move.x, headPos.y + move.y);
-        if (headPos.y - 1 < 0 || Grid.isOccupied(grid, nextPos)) {
-          // move = new Point(0, 2);
-        }
-      }
-    }
-  }
-  return move;
+  var isOccupied = Grid.isOccupied(grid, nextPos);
+
+  return (isOccupied === false);
+  // this works because isOccupied is 
+  //    exactly false if the square is free, 
+  //    true if occupied, 
+  //    undefined if out of bounds
 }

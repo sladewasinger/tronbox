@@ -12,7 +12,7 @@
         <button class="btn btn-dark" @click="reset()">RESET</button>
         <button class="btn btn-dark" @click="togglePause()">{{ pauseBtnText }}</button>
       </div>
-      <textarea v-model="aiJs" class="editor">TESTING</textarea>
+      <textarea v-model="aiJs" class="editor"></textarea>
     </div>
   </div>
 </template>
@@ -20,7 +20,8 @@
 <script>
 import { Renderer } from "./tron/Renderer";
 import { Engine } from "./tron/Engine";
-import { ai_Clockwise_v1 } from "./tron/ai/clockwise.ai";
+//import { ai_Clockwise_v1 } from "./tron/ai/clockwise.ai";
+import clockwiseExampleAi from 'raw-loader!./tron/ai/clockwise.ai.js';
 
 export default {
   name: "TronBox",
@@ -43,13 +44,14 @@ export default {
   mounted() {
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
-    this.aiJs = ai_Clockwise_v1.toString();
+    // this.aiJs = ai_Clockwise_v1.toString();
+    this.aiJs = clockwiseExampleAi;
     this.start();
   },
-
   methods: {
     addTrail() {
-      this.engine.addTrail(new Function('return ' + this.aiJs)());
+      var func = new Function('return ' + this.aiJs)();
+      this.engine.addTrail(func);
     },
     reset() {
       this.engine.reset();

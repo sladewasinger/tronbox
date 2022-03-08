@@ -6,8 +6,7 @@ export class Grid {
             console.log("Invalid grid supplied: ", grid);
             return;
         }
-        if (pos.x >= grid.length || pos.y >= grid[pos.x].length
-            || pos.x < 0 || pos.y < 0) {
+        if (pos.x >= grid.length || pos.x < 0 || pos.y < 0 || pos.y >= grid[pos.x].length) {
             console.log("Invalid pos supplied: ", pos);
             return;
         }
