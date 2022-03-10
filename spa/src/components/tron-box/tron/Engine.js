@@ -97,7 +97,7 @@ export class Engine {
       console.log("No open spots to spawn in a tron bike!");
       return;
     }
-    var pos = openSpots[Math.floor(Math.random() * openSpots.length)].position;
+    var pos = openSpots[Math.floor(Math.random() * openSpots.length)].gridPosition;
     return pos;
   }
 

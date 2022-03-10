@@ -6,7 +6,17 @@
     <div class="flex-box-row">
       <div>
         <!-- Canvas will default to 300 x 150 if width and height aren't manually set -->
-        <canvas :id="canvasId" class="canvas-style" width="500" height="500" />
+        <p class="tip">Press 'a' or 'b' on the keyboard to place a bot at your mouse position!</p>
+        <canvas
+          :id="canvasId"
+          ref="canvas"
+          width="500"
+          class="canvas-style"
+          height="500"
+          @mousemove="mouseMove"
+          @mouseenter="mouseEnter"
+          @mouseexit="mouseExit"
+        />
       </div>
       <div class="editor">
         <div class="controls">
@@ -18,10 +28,10 @@
             <button class="btn btn-dark" @click="addTrail(botB)">ADD [B]</button>
             <input id="colorPickerB" v-model="botB.color" type="color" />
           </div>
-          <button class="btn btn-dark" @click="clear()">CLEAR</button>
-          <button class="btn btn-dark" @click="reset()">RESET</button>
-          <button class="btn btn-dark" @click="togglePause()">{{ pauseBtnText }}</button>
-          <button class="btn btn-dark" @click="step()">STEP</button>
+          <button class="btn btn-dark" @click="clear">CLEAR</button>
+          <button class="btn btn-dark" @click="reset">RANDOM</button>
+          <button class="btn btn-dark" @click="togglePause">{{ pauseBtnText }}</button>
+          <button class="btn btn-dark" @click="step">STEP</button>
         </div>
 
         <textarea v-model="botA.js" class="code-area"></textarea>
@@ -56,7 +66,10 @@ export default {
     },
     renderer: undefined,
     engine: undefined,
-    paused: true
+    paused: true,
+    mousePos: { x: 0, y: 0 },
+    mouseIsOnCanvas: false,
+    lastKeyPressed: undefined
   }),
   computed: {
     pauseBtnText: function () {
@@ -64,6 +77,8 @@ export default {
     }
   },
   mounted() {
+    window.addEventListener('keydown', this.keyDown);
+    window.addEventListener('keyup', this.keyUp);
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
     this.botA.js = clockwiseExampleAi;
@@ -71,9 +86,10 @@ export default {
     this.start();
   },
   methods: {
-    addTrail(bot) {
+    addTrail(bot, pos) {
       let getMove = this.engine.parseRawJsIntoGetMoveFunction(bot.js);
-      this.engine.addTrail(getMove, bot.color);
+      console.log("Adding at: ", pos);
+      this.engine.addTrail(getMove, bot.color, pos);
     },
     clear() {
       this.engine.reset();
@@ -97,6 +113,48 @@ export default {
     togglePause() {
       this.paused = !this.paused;
     },
+    mouseEnter() {
+      this.mouseIsOnCanvas = true;
+    },
+    mouseExit() {
+      this.mouseIsOnCanvas = false;
+    },
+    addBotAtMousePos(bot) {
+      if (!this.mouseIsOnCanvas) {
+        return;
+      }
+
+      var gridPos = this.renderer.convertMousePosToGridPos(this.mousePos);
+      console.log(Grid.isOccupied(this.engine.grid, gridPos));
+      if (!gridPos || Grid.isOccupied(this.engine.grid, gridPos)) {
+
+        return;
+      }
+
+      this.addTrail(bot, gridPos);
+    },
+    keyDown(keyEvent) {
+      // Prevent multiple events when holding down a key:
+      if (this.lastKeyPressed == keyEvent.key) {
+        return;
+      }
+      this.lastKeyPressed = keyEvent.key;
+      if (keyEvent.key == 'a') {
+        this.addBotAtMousePos(this.botA);
+      } else if (keyEvent.key == 'b') {
+        this.addBotAtMousePos(this.botB);
+      }
+    },
+    keyUp(keyEvent) {
+      this.lastKeyPressed = undefined;
+    },
+    mouseMove(event) {
+      var rect = this.$refs.canvas.getBoundingClientRect();
+      this.mousePos = {
+        x: Math.floor(event.clientX - rect.left),
+        y: Math.floor(event.clientY - rect.top)
+      };
+    },
     loop() {
       if (!this.paused) {
         this.engine.step();
@@ -109,6 +167,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.tip {
+  font-style: italic;
+  color: #999;
+}
+
 .canvas-style {
   width: 100%;
   height: 100%;

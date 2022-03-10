@@ -1,3 +1,6 @@
+import { Point } from "paper/dist/paper-core";
+import { Grid } from "./models/GridExtensions";
+
 const paper = require("paper");
 
 export class Renderer {
@@ -11,8 +14,8 @@ export class Renderer {
     /* 
       Vue.js doesn't reset global paper object
       when app re-compiles during development.
-      This leads to bugs and "memory-leaks".m
-      The best solution I can come up with:
+      This leads to bugs and "memory-leaks".
+      This is the best solution I can come up with:
     */
     paper.projects.forEach(project => {
       console.log("Unexpected project found. Removing...");
@@ -28,6 +31,22 @@ export class Renderer {
     this.colorIndex = 0;
   }
 
+  convertMousePosToGridPos(mousePos) {
+    if (!this.grid) {
+      return;
+    }
+
+    var intersectingCell = Grid
+      .flatten(this.grid)
+      .find(x => x.hitTest(new Point(mousePos.x, mousePos.y)));
+
+    if (intersectingCell) {
+      return intersectingCell.gridPosition;
+    }
+
+    return undefined;
+  }
+
   render(grid, trails) {
     if (this.grid === undefined) {
       var cellWidth = 50;
@@ -39,15 +58,7 @@ export class Renderer {
             new paper.Size(cellWidth, cellWidth)
           );
           cell.strokeColor = "#444"; // #290
-          let fillColor = "#090909";
-          // Color corners of grid gray:
-          // if (
-          //     (x == 0 || x + 1 == this.gridWidth) &&
-          //     (y == 0 || y + 1 == this.gridWidth)
-          // ) {
-          //     fillColor = "#222";
-          // }
-          cell.fillColor = fillColor;
+          cell.fillColor = "#090909";
           return cell;
         })
       );

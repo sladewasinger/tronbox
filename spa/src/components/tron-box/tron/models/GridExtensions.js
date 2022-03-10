@@ -16,7 +16,10 @@ export class Grid {
 
     static flatten(grid) {
         return grid
-            .map((col, x) => col.map((cell, y) => ({ occupied: cell.occupied, position: new Point(x, y) })))
+            .map((col, x) => col.map((cell, y) => {
+                cell.gridPosition = new Point(x, y);
+                return cell;
+            }))
             .flatMap(x => x);
     }
 }
