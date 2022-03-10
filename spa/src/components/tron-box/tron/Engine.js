@@ -8,7 +8,6 @@ export class Engine {
     window.Point = Point;
     window.Grid = Grid;
 
-    this.paused = true;
     this.reset();
   }
 
@@ -89,10 +88,9 @@ export class Engine {
     return usrGetMove;
   }
 
-  addTrail(getMove_func) {
-    var openSpots = this.grid
-      .map((col, x) => col.map((cell, y) => ({ occupied: cell.occupied, position: new Point(x, y) })))
-      .flatMap(x => x)
+  getRandomValidPos() {
+    var openSpots = Grid
+      .flatten(this.grid)
       .filter(x => !x.occupied);
 
     if (openSpots.length < 1) {
@@ -100,11 +98,25 @@ export class Engine {
       return;
     }
     var pos = openSpots[Math.floor(Math.random() * openSpots.length)].position;
+    return pos;
+  }
+
+  getRandomColor() {
     var color = Constants.colors[this.colorIndex++];
     if (this.colorIndex >= Constants.colors.length) {
       console.log("No more colors to create a trail with...");
       return;
     }
+    return color;
+  }
+
+  addTrail(getMove_func, color, pos) {
+    pos = pos || this.getRandomValidPos();
+    if (!pos) {
+      return;
+    }
+    color = color || this.getRandomColor();
+
     var id = this.trails.length;
     var trail = this.createTrail(pos.x, pos.y, color, id, getMove_func);
     this.trails.push(trail);
@@ -122,18 +134,7 @@ export class Engine {
     }
   }
 
-  pause() {
-    this.paused = true;
-  }
-
-  resume() {
-    this.paused = false;
-  }
-
-  loop() {
-    if (this.paused) {
-      return;
-    }
+  step() {
     this.iterateTrails();
   }
 }

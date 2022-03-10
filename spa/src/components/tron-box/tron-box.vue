@@ -5,19 +5,27 @@
     </div>
     <div class="flex-box-row">
       <div>
-        <!-- Canvas will randomly default to 300 x 150 if width and height aren't manually set -->
+        <!-- Canvas will default to 300 x 150 if width and height aren't manually set -->
         <canvas :id="canvasId" class="canvas-style" width="500" height="500" />
       </div>
       <div class="editor">
         <div class="controls">
-          <button class="btn btn-dark" @click="addTrail_A()">ADD [A]</button>
-          <button class="btn btn-dark" @click="addTrail_B()">ADD [B]</button>
+          <div class="control">
+            <button class="btn btn-dark" @click="addTrail(botA)">ADD [A]</button>
+            <input id="colorPickerA" v-model="botA.color" type="color" />
+          </div>
+          <div class="control">
+            <button class="btn btn-dark" @click="addTrail(botB)">ADD [B]</button>
+            <input id="colorPickerB" v-model="botB.color" type="color" />
+          </div>
           <button class="btn btn-dark" @click="clear()">CLEAR</button>
           <button class="btn btn-dark" @click="reset()">RESET</button>
           <button class="btn btn-dark" @click="togglePause()">{{ pauseBtnText }}</button>
+          <button class="btn btn-dark" @click="step()">STEP</button>
         </div>
-        <textarea v-model="aiJs_A" class="code-area"></textarea>
-        <textarea v-model="aiJs_B" class="code-area"></textarea>
+
+        <textarea v-model="botA.js" class="code-area"></textarea>
+        <textarea v-model="botB.js" class="code-area"></textarea>
       </div>
     </div>
   </div>
@@ -38,57 +46,61 @@ export default {
     }
   },
   data: () => ({
-    aiJs_A: '',
-    aiJs_B: '',
+    botA: {
+      js: undefined,
+      color: "#FF0000"
+    },
+    botB: {
+      js: undefined,
+      color: "#0000FF"
+    },
     renderer: undefined,
-    engine: undefined
+    engine: undefined,
+    paused: true
   }),
   computed: {
     pauseBtnText: function () {
-      return this.engine?.paused ? 'PLAY' : 'PAUSE';
+      return this.paused ? 'PLAY' : 'PAUSE';
     }
   },
   mounted() {
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
-    this.aiJs_A = clockwiseExampleAi;
-    this.aiJs_B = counterclockwiseExampleAi;
+    this.botA.js = clockwiseExampleAi;
+    this.botB.js = counterclockwiseExampleAi;
     this.start();
   },
   methods: {
-    addTrail_A() {
-      let getMove = this.engine.parseRawJsIntoGetMoveFunction(this.aiJs_A);
-      this.engine.addTrail(getMove);
-    },
-    addTrail_B() {
-      let getMove = this.engine.parseRawJsIntoGetMoveFunction(this.aiJs_B);
-      this.engine.addTrail(getMove);
+    addTrail(bot) {
+      let getMove = this.engine.parseRawJsIntoGetMoveFunction(bot.js);
+      this.engine.addTrail(getMove, bot.color);
     },
     clear() {
       this.engine.reset();
       this.renderer.reset();
+    },
+    step() {
+      this.engine.step();
     },
     reset() {
       this.clear();
       this.addInitialTrails();
     },
     addInitialTrails() {
-      this.addTrail_A();
-      this.addTrail_B();
+      this.addTrail(this.botA);
+      this.addTrail(this.botB);
     },
     start() {
       this.addInitialTrails();
       this.loop();
     },
     togglePause() {
-      if (this.engine.paused) {
-        this.engine.resume();
-      } else {
-        this.engine.pause();
-      }
+      this.paused = !this.paused;
     },
     loop() {
-      this.engine.loop();
+      if (!this.paused) {
+        this.engine.step();
+      }
       this.renderer.render(this.engine.grid, this.engine.trails);
       setTimeout(this.loop, 50);
     }
@@ -112,8 +124,17 @@ export default {
   .controls {
     text-align: left;
     padding-bottom: 5px;
-    button {
-      margin-right: 5px;
+    display: flex;
+    gap: 10px;
+
+    .control {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: baseline;
+      gap: 5px;
+      * {
+        width: 100%;
+      }
     }
   }
 }
@@ -147,12 +168,12 @@ export default {
 }
 
 /* width */
-.editor::-webkit-scrollbar {
+.code-area::-webkit-scrollbar {
   width: 10px;
 }
 
 /* Track */
-.editor::-webkit-scrollbar-track {
+.code-area::-webkit-scrollbar-track {
   background-color: #f1f1f1;
 }
 
@@ -162,11 +183,11 @@ textarea {
 }
 
 /* Handle */
-.editor::-webkit-scrollbar-thumb {
+.code-area::-webkit-scrollbar-thumb {
   background-color: rgb(0, 129, 32);
 }
 /* Handle on hover */
-.editor::-webkit-scrollbar-thumb:hover {
+.code-area::-webkit-scrollbar-thumb:hover {
   background: rgb(2, 80, 32);
 }
 </style>
