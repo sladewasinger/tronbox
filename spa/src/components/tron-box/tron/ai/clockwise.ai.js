@@ -13,7 +13,7 @@ function validMove(grid, headPos, move) {
   var nextPos = new Point(headPos.x + move.x, headPos.y + move.y);
   var isOccupied = Grid.isOccupied(grid, nextPos);
 
-  return (isOccupied === false);
+  return (isOccupied == false);
   // this works because isOccupied is 
   //    exactly false if the square is free, 
   //    true if occupied, 

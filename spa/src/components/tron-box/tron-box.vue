@@ -23,8 +23,7 @@
 <script>
 import { Renderer } from "./tron/Renderer";
 import { Engine } from "./tron/Engine";
-//import { ai_Clockwise_v1 } from "./tron/ai/clockwise.ai";
-import clockwiseExampleAi from 'raw-loader!./tron/ai/clockwise.ai.js';
+import clockwiseExampleAi from 'raw-loader!./tron/ai/clockwise.ai.js'; /* Load the raw JS as a string */
 
 export default {
   name: "TronBox",
@@ -41,20 +40,19 @@ export default {
   }),
   computed: {
     pauseBtnText: function () {
-      return this.engine?.paused ? 'Play' : 'Pause';
+      return this.engine?.paused ? 'PLAY' : 'PAUSE';
     }
   },
   mounted() {
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
-    // this.aiJs = ai_Clockwise_v1.toString();
     this.aiJs = clockwiseExampleAi;
     this.start();
   },
   methods: {
     addTrail() {
-      var func = new Function('return getMove; ' + this.aiJs)();
-      this.engine.addTrail(func);
+      let getMove = this.engine.parseRawJsIntoGetMoveFunction(this.aiJs);
+      this.engine.addTrail(getMove);
     },
     reset() {
       this.engine.reset();

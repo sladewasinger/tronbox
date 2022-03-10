@@ -1,6 +1,5 @@
 import { Constants } from "./models/Constants";
 import { Point } from "paper/dist/paper-core";
-import { ai_Clockwise_v1 } from "./ai/clockwise.ai";
 import { Grid } from "./models/GridExtensions";
 
 export class Engine {
@@ -52,27 +51,17 @@ export class Engine {
       getMove: getMove,
       applyMove(grid, trails, headPos, moveDir) {
         if (!moveDir || moveDir.x == undefined || moveDir.y == undefined) {
-          console.log("Error - moveDir is not a valid Point object:", moveDir);
-          console.log("Defaulting movDir to RIGHT");
-          moveDir = Constants.MoveDirection.RIGHT;
+          console.log("Error - moveDir is not a valid Point object. Killing trail. moveDir supplied:", moveDir);
+          this.alive = false;
+          return;
         }
         if (!Object.keys(Constants.MoveDirection).map(key => Constants.MoveDirection[key]).some(x => moveDir.x == x.x && moveDir.y == x.y)) {
-          console.log("Invalid move supplied! Defaulting to the RIGHT. Move supplied: ", moveDir);
-          moveDir = Constants.MoveDirection.RIGHT;
+          console.log("Invalid move supplied! Killing trail. Move supplied: ", moveDir);
+          this.alive = false;
+          return;
         }
 
         let move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
-        if (this.tail && this.tail.length) {
-          let neck = this.tail[this.tail.length - 1];
-          if (neck.x == move.x && neck.y == move.y) {
-            console.log("Invalid move turning in on your neck - defaulting to RIGHT (or left)");
-            moveDir = (moveDir == Constants.MoveDirection.RIGHT
-              ? Constants.MoveDirection.LEFT
-              : Constants.MoveDirection.RIGHT);
-            move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
-          }
-        }
-
         if ((move.x < 0 || move.x >= grid.length) ||
           (move.y < 0 || move.y >= grid[0].length)) {
           console.log(`%cTRAIL [${this.id}] %ctried to escape the grid! They failed...`, 'color: ' + this.color, 'color: auto');
@@ -89,12 +78,18 @@ export class Engine {
 
         this.tail.push(this.head);
         this.head = move;
+        grid[trail.head.x][trail.head.y].id = trail.id;
       },
     };
     return trail;
   }
 
-  addTrail(aiJs = ai_Clockwise_v1) {
+  parseRawJsIntoGetMoveFunction(raw_ai_js) {
+    let usrGetMove = new Function('return getMove; ' + raw_ai_js)();
+    return usrGetMove;
+  }
+
+  addTrail(getMove_func) {
     var openSpots = this.grid
       .map((col, x) => col.map((cell, y) => ({ occupied: cell.occupied, position: new Point(x, y) })))
       .flatMap(x => x)
@@ -111,7 +106,7 @@ export class Engine {
       return;
     }
     var id = this.trails.length;
-    var trail = this.createTrail(pos.x, pos.y, color, id, aiJs);
+    var trail = this.createTrail(pos.x, pos.y, color, id, getMove_func);
     this.trails.push(trail);
     this.grid[trail.head.x][trail.head.y].id = trail.id;
   }
@@ -119,12 +114,11 @@ export class Engine {
   iterateTrails() {
     for (let trail of this.trails.filter(x => x.alive)) {
       try {
-        var moveDir = trail.getMove(this.grid, trail.head);
+        var move = trail.getMove(this.grid, trail.head);
       } catch (ex) {
-        console.log("Error executing script: ", ex);
+        console.log("Error executing script: ", ex, trail.getMove);
       }
-      trail.applyMove(this.grid, this.trails, trail.head, moveDir);
-      this.grid[trail.head.x][trail.head.y].id = trail.id;
+      trail.applyMove(this.grid, this.trails, trail.head, move);
     }
   }
 
@@ -133,10 +127,6 @@ export class Engine {
   }
 
   resume() {
-    // console.log("TRAILS:");
-    // this.trails.forEach(trail => {
-    //   console.log(`%c TRAIL [${trail.id}] ${trail.color}`, 'color: ' + trail.color);
-    // })
     this.paused = false;
   }
 
