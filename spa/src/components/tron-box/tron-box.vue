@@ -24,11 +24,10 @@
         <div v-if="showWinnerText">
           <h2>Winners:</h2>
           <ol>
-            <li
-              v-for="winner in engine.winners"
-              :key="winner.id"
-              :style="`color: ${winner.color}`"
-            >TRAIL [{{ winner.id }}]</li>
+            <li v-for="winner in engine.winners" :key="winner.id">
+              <b :style="`color: ${winner.color}`">TRAIL [{{ winner.id }}]</b>
+              - POINTS: {{ winner.points }}
+            </li>
           </ol>
         </div>
       </div>

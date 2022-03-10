@@ -198,6 +198,7 @@ export class Engine {
     }
     for (var tempWinner of tempWinners) {
       let trail = this.trails.find(x => x.id == tempWinner.id);
+      trail.points = tempWinner.points;
       console.log(`%c!!!! %cTRAIL [${trail.id}] %c${wonortiedText} WITH ${tempWinner.points} POINTS!!!!`, `color: auto`, `color: ${trail.color};`, `color: auto`);
       this.winners.push(trail);
     }
