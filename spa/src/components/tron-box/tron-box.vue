@@ -12,6 +12,7 @@
         <div class="controls">
           <button class="btn btn-dark" @click="addTrail_A()">ADD [A]</button>
           <button class="btn btn-dark" @click="addTrail_B()">ADD [B]</button>
+          <button class="btn btn-dark" @click="clear()">CLEAR</button>
           <button class="btn btn-dark" @click="reset()">RESET</button>
           <button class="btn btn-dark" @click="togglePause()">{{ pauseBtnText }}</button>
         </div>
@@ -26,6 +27,7 @@
 import { Renderer } from "./tron/Renderer";
 import { Engine } from "./tron/Engine";
 import clockwiseExampleAi from 'raw-loader!./tron/ai/clockwise.ai.js'; /* Load the raw JS as a string */
+import counterclockwiseExampleAi from 'raw-loader!./tron/ai/counterclockwise.ai.js'; /* Load the raw JS as a string */
 
 export default {
   name: "TronBox",
@@ -50,7 +52,7 @@ export default {
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
     this.aiJs_A = clockwiseExampleAi;
-    this.aiJs_B = clockwiseExampleAi;
+    this.aiJs_B = counterclockwiseExampleAi;
     this.start();
   },
   methods: {
@@ -62,9 +64,12 @@ export default {
       let getMove = this.engine.parseRawJsIntoGetMoveFunction(this.aiJs_B);
       this.engine.addTrail(getMove);
     },
-    reset() {
+    clear() {
       this.engine.reset();
       this.renderer.reset();
+    },
+    reset() {
+      this.clear();
       this.addInitialTrails();
     },
     addInitialTrails() {

@@ -1,10 +1,10 @@
-// Clockwise bot - Example:
+// Counter-Clockwise bot - Example:
 function getMove(grid, headPos) {
   var dir = Constants.MoveDirection;
 
-  if (validMove(grid, headPos, dir.RIGHT)) return dir.RIGHT;
-  if (validMove(grid, headPos, dir.DOWN)) return dir.DOWN;
   if (validMove(grid, headPos, dir.LEFT)) return dir.LEFT;
+  if (validMove(grid, headPos, dir.DOWN)) return dir.DOWN;
+  if (validMove(grid, headPos, dir.RIGHT)) return dir.RIGHT;
   if (validMove(grid, headPos, dir.UP)) return dir.UP;
 
   return dir.RIGHT;
