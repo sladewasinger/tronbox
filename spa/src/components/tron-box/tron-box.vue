@@ -5,27 +5,18 @@
     </div>
     <div class="flex-box-row">
       <div>
-        <!-- Canvas will randomly get squished if width and height aren't manually set -->
+        <!-- Canvas will randomly default to 300 x 150 if width and height aren't manually set -->
         <canvas :id="canvasId" class="canvas-style" width="500" height="500" />
       </div>
       <div class="editor">
         <div class="controls">
-          <button class="btn btn-dark" @click="addTrail()">ADD</button>
+          <button class="btn btn-dark" @click="addTrail_A()">ADD [A]</button>
+          <button class="btn btn-dark" @click="addTrail_B()">ADD [B]</button>
           <button class="btn btn-dark" @click="reset()">RESET</button>
           <button class="btn btn-dark" @click="togglePause()">{{ pauseBtnText }}</button>
         </div>
-        <textarea v-model="aiJs" class="code-area"></textarea>
-        <b-tabs content-class="mt-3">
-          <b-tab title="First" active>
-            <p>I'm the first tab</p>
-          </b-tab>
-          <b-tab title="Second">
-            <p>I'm the second tab</p>
-          </b-tab>
-          <b-tab title="Disabled" disabled>
-            <p>I'm a disabled tab!</p>
-          </b-tab>
-        </b-tabs>
+        <textarea v-model="aiJs_A" class="code-area"></textarea>
+        <textarea v-model="aiJs_B" class="code-area"></textarea>
       </div>
     </div>
   </div>
@@ -45,7 +36,8 @@ export default {
     }
   },
   data: () => ({
-    aiJs: '',
+    aiJs_A: '',
+    aiJs_B: '',
     renderer: undefined,
     engine: undefined
   }),
@@ -57,22 +49,30 @@ export default {
   mounted() {
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
-    this.aiJs = clockwiseExampleAi;
+    this.aiJs_A = clockwiseExampleAi;
+    this.aiJs_B = clockwiseExampleAi;
     this.start();
   },
   methods: {
-    addTrail() {
-      let getMove = this.engine.parseRawJsIntoGetMoveFunction(this.aiJs);
+    addTrail_A() {
+      let getMove = this.engine.parseRawJsIntoGetMoveFunction(this.aiJs_A);
+      this.engine.addTrail(getMove);
+    },
+    addTrail_B() {
+      let getMove = this.engine.parseRawJsIntoGetMoveFunction(this.aiJs_B);
       this.engine.addTrail(getMove);
     },
     reset() {
       this.engine.reset();
       this.renderer.reset();
+      this.addInitialTrails();
+    },
+    addInitialTrails() {
+      this.addTrail_A();
+      this.addTrail_B();
     },
     start() {
-      this.addTrail();
-      this.addTrail();
-      this.addTrail();
+      this.addInitialTrails();
       this.loop();
     },
     togglePause() {
@@ -118,7 +118,7 @@ export default {
   flex-wrap: wrap;
   flex-direction: row;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 50px;
 }
 
