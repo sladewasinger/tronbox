@@ -21,7 +21,12 @@ export class Engine {
     this.trails = [];
     this.gridWidth = 10;
     this.colorIndex = 0;
+    this.winners = [];
     this.createGrid();
+  }
+
+  get allBotsDead() {
+    return this.trails.every(x => !x.alive);
   }
 
   createGrid() {
@@ -78,6 +83,7 @@ export class Engine {
         this.tail.push(this.head);
         this.head = move;
         grid[trail.head.x][trail.head.y].id = trail.id;
+        return true;
       },
     };
     return trail;
@@ -123,18 +129,101 @@ export class Engine {
     this.grid[trail.head.x][trail.head.y].id = trail.id;
   }
 
+  getRandomColor() {
+    const randomInt = (min, max) => {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+
+    function hslToHex(h, s, l) {
+      l /= 100;
+      const a = s * Math.min(l, 1 - l) / 100;
+      const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');   // convert to Hex and prefix "0" if needed
+      };
+      return `#${f(0)}${f(8)}${f(4)}`;
+    }
+    var h = randomInt(0, 360);
+    var s = randomInt(50, 100);
+    var l = randomInt(30, 70);
+
+    return hslToHex(h, s, l);
+  }
+
+  determineWinners() {
+    if (this.trails.length < 1) {
+      return;
+    }
+
+    var pointMap = Grid
+      .flatten(this.grid)
+      .filter(x => x.occupied)
+      .reduce((prev, cur) => {
+        if (!prev[cur.id]) {
+          prev[cur.id] = {
+            points: 0,
+            id: cur.id
+          };
+        }
+        prev[cur.id].points += 1;
+        return prev;
+      }, {});
+
+    if (Object.keys(pointMap).length < 1) {
+      return;
+    }
+
+    let mostPoints = Object.keys(pointMap)
+      .map(key => pointMap[key])
+      .sort((a, b) => b.points - a.points)
+    [0].points;
+
+    let tempWinners = Object.keys(pointMap)
+      .map(key => pointMap[key])
+      .filter(x => x.points == mostPoints);
+
+    for (var trail of Object.keys(pointMap).map(key => pointMap[key])) {
+      console.log(`TRAIL [${trail.id}] has ${trail.points} points.`);
+    }
+
+    console.log("\n\n\n");
+    console.log("#############################");
+    console.log("##         WINNERS         ##");
+    console.log("#############################");
+    var wonortiedText = 'WON';
+    if (tempWinners.length > 1) {
+      console.log(" -- IT'S A TIE! -- ");
+      wonortiedText = 'TIED'
+    }
+    for (var tempWinner of tempWinners) {
+      let trail = this.trails.find(x => x.id == tempWinner.id);
+      console.log(`%c!!!! %cTRAIL [${trail.id}] %c${wonortiedText} WITH ${tempWinner.points} POINTS!!!!`, `color: auto`, `color: ${trail.color};`, `color: auto`);
+      this.winners.push(trail);
+    }
+  }
+
   iterateTrails() {
+    let atLeastOneMoveMade = false;
     for (let trail of this.trails.filter(x => x.alive)) {
       try {
         var move = trail.getMove(this.grid, trail.head);
       } catch (ex) {
         console.log("Error executing script: ", ex, trail.getMove);
       }
-      trail.applyMove(this.grid, this.trails, trail.head, move);
+      let moveWasMade = trail.applyMove(this.grid, this.trails, trail.head, move) || false;
+      if (moveWasMade) {
+        atLeastOneMoveMade = true;
+      }
+    }
+    if (this.allBotsDead) {
+      this.determineWinners();
     }
   }
 
   step() {
-    this.iterateTrails();
+    if (!this.allBotsDead) {
+      this.iterateTrails();
+    }
   }
 }

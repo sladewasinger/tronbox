@@ -6,7 +6,11 @@
     <div class="flex-box-row">
       <div>
         <!-- Canvas will default to 300 x 150 if width and height aren't manually set -->
-        <p class="tip">Press 'a' or 'b' on the keyboard to place a bot at your mouse position!</p>
+
+        <p class="tip">
+          Press 'a' or 'b' on the keyboard to place a bot at your mouse
+          position!
+        </p>
         <canvas
           :id="canvasId"
           ref="canvas"
@@ -17,6 +21,16 @@
           @mouseenter="mouseEnter"
           @mouseexit="mouseExit"
         />
+        <div v-if="showWinnerText">
+          <h2>Winners:</h2>
+          <ol>
+            <li
+              v-for="winner in engine.winners"
+              :key="winner.id"
+              :style="`color: ${winner.color}`"
+            >TRAIL [{{ winner.id }}]</li>
+          </ol>
+        </div>
       </div>
       <div class="editor">
         <div class="controls">
@@ -44,41 +58,44 @@
 <script>
 import { Renderer } from "./tron/Renderer";
 import { Engine } from "./tron/Engine";
-import clockwiseExampleAi from 'raw-loader!./tron/ai/clockwise.ai.js'; /* Load the raw JS as a string */
-import counterclockwiseExampleAi from 'raw-loader!./tron/ai/counterclockwise.ai.js'; /* Load the raw JS as a string */
+import clockwiseExampleAi from "raw-loader!./tron/ai/clockwise.ai.js"; /* Load the raw JS as a string */
+import counterclockwiseExampleAi from "raw-loader!./tron/ai/counterclockwise.ai.js"; /* Load the raw JS as a string */
 
 export default {
   name: "TronBox",
   props: {
     canvasId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data: () => ({
     botA: {
       js: undefined,
-      color: "#FF0000"
+      color: "#FF0000",
     },
     botB: {
       js: undefined,
-      color: "#0000FF"
+      color: "#0000FF",
     },
     renderer: undefined,
     engine: undefined,
     paused: true,
     mousePos: { x: 0, y: 0 },
     mouseIsOnCanvas: false,
-    lastKeyPressed: undefined
+    lastKeyPressed: undefined,
   }),
   computed: {
     pauseBtnText: function () {
-      return this.paused ? 'PLAY' : 'PAUSE';
-    }
+      return this.paused ? "PLAY" : "PAUSE";
+    },
+    showWinnerText: function () {
+      return this.engine?.winners?.length > 0;
+    },
   },
   mounted() {
-    window.addEventListener('keydown', this.keyDown);
-    window.addEventListener('keyup', this.keyUp);
+    window.addEventListener("keydown", this.keyDown);
+    window.addEventListener("keyup", this.keyUp);
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
     this.botA.js = clockwiseExampleAi;
@@ -88,8 +105,8 @@ export default {
   methods: {
     addTrail(bot, pos) {
       let getMove = this.engine.parseRawJsIntoGetMoveFunction(bot.js);
-      console.log("Adding at: ", pos);
       this.engine.addTrail(getMove, bot.color, pos);
+      bot.color = this.engine.getRandomColor();
     },
     clear() {
       this.engine.reset();
@@ -125,9 +142,7 @@ export default {
       }
 
       var gridPos = this.renderer.convertMousePosToGridPos(this.mousePos);
-      console.log(Grid.isOccupied(this.engine.grid, gridPos));
       if (!gridPos || Grid.isOccupied(this.engine.grid, gridPos)) {
-
         return;
       }
 
@@ -139,9 +154,9 @@ export default {
         return;
       }
       this.lastKeyPressed = keyEvent.key;
-      if (keyEvent.key == 'a') {
+      if (keyEvent.key == "a") {
         this.addBotAtMousePos(this.botA);
-      } else if (keyEvent.key == 'b') {
+      } else if (keyEvent.key == "b") {
         this.addBotAtMousePos(this.botB);
       }
     },
@@ -152,7 +167,7 @@ export default {
       var rect = this.$refs.canvas.getBoundingClientRect();
       this.mousePos = {
         x: Math.floor(event.clientX - rect.left),
-        y: Math.floor(event.clientY - rect.top)
+        y: Math.floor(event.clientY - rect.top),
       };
     },
     loop() {
@@ -161,8 +176,8 @@ export default {
       }
       this.renderer.render(this.engine.grid, this.engine.trails);
       setTimeout(this.loop, 50);
-    }
-  }
+    },
+  },
 };
 </script>
 

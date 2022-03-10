@@ -15,12 +15,12 @@ body:before {
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: contain;
-  background-blend-mode: darken;
+  // background-blend-mode: darken;
   width: 100vw;
   height: 100vh;
   top: 0;
   left: 0;
-  filter: blur(0px) brightness(50%);
+  filter: blur(0px) brightness(15%);
   z-index: -1;
   position: fixed;
 }
