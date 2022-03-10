@@ -25,8 +25,9 @@ export class Engine {
     this.createGrid();
   }
 
+  // TODO: Add "gameFinished" boolean value instead...
   get allBotsDead() {
-    return this.trails.every(x => !x.alive);
+    return this.trails.length && this.trails.every(x => !x.alive);
   }
 
   createGrid() {
@@ -117,6 +118,11 @@ export class Engine {
   }
 
   addTrail(getMove_func, color, pos) {
+    if (this.allBotsDead) {
+      console.log("All bots are dead - please reset before addinga new bot.");
+      return;
+    }
+
     pos = pos || this.getRandomValidPos();
     if (!pos) {
       return;
