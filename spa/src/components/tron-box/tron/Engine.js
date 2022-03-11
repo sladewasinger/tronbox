@@ -213,8 +213,8 @@ export class Engine {
   iterateTrails() {
     let atLeastOneMoveMade = false;
     for (let trail of this.trails.filter(x => x.alive)) {
-      try {
-        var move = trail.getMove(this.grid, trail.head);
+        try {
+            var move = trail.getMove(this.grid, trail.head, this.trails.map(t => t.head));
       } catch (ex) {
         console.log("Error executing script: ", ex, trail.getMove);
       }
