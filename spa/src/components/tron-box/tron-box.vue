@@ -18,8 +18,8 @@
           class="canvas-style"
           height="500"
           @mousemove="mouseMove"
-          @mouseenter="mouseEnter"
-          @mouseexit="mouseExit"
+          @mouseenter="canvasMouseEnter"
+          @mouseleave="canvasMouseLeave"
         />
         <div v-if="showWinnerText">
           <h2>Winners:</h2>
@@ -33,12 +33,12 @@
       </div>
       <div class="editor">
         <div class="controls">
-          <div class="control">
-            <button class="btn btn-dark" @click="addTrail(botA)">ADD [A]</button>
+          <div class="multi-control">
+            <button class="btn btn-dark" @click="addBot(botA)">ADD [A]</button>
             <input id="colorPickerA" v-model="botA.color" type="color" />
           </div>
-          <div class="control">
-            <button class="btn btn-dark" @click="addTrail(botB)">ADD [B]</button>
+          <div class="multi-control">
+            <button class="btn btn-dark" @click="addBot(botB)">ADD [B]</button>
             <input id="colorPickerB" v-model="botB.color" type="color" />
           </div>
           <button class="btn btn-dark" @click="clear">CLEAR</button>
@@ -47,8 +47,8 @@
           <button class="btn btn-dark" @click="step">STEP</button>
         </div>
 
-        <textarea v-model="botA.js" class="code-area"></textarea>
-        <textarea v-model="botB.js" class="code-area"></textarea>
+        <textarea v-model="botA.js" class="code-area" :style="`border-color: ${botA.prevColor}`"></textarea>
+        <textarea v-model="botB.js" class="code-area" :style="`border-color: ${botB.prevColor}`"></textarea>
       </div>
     </div>
   </div>
@@ -72,10 +72,12 @@ export default {
     botA: {
       js: undefined,
       color: "#FF0000",
+      prevColor: "#FF0000",
     },
     botB: {
       js: undefined,
       color: "#0000FF",
+      prevColor: "#0000FF"
     },
     renderer: undefined,
     engine: undefined,
@@ -102,9 +104,10 @@ export default {
     this.start();
   },
   methods: {
-    addTrail(bot, pos) {
+    addBot(bot, pos) {
       let getMove = this.engine.parseRawJsIntoGetMoveFunction(bot.js);
       this.engine.addTrail(getMove, bot.color, pos);
+      bot.prevColor = bot.color;
       bot.color = this.engine.getRandomColor();
     },
     clear() {
@@ -119,8 +122,8 @@ export default {
       this.addInitialTrails();
     },
     addInitialTrails() {
-      this.addTrail(this.botA);
-      this.addTrail(this.botB);
+      this.addBot(this.botA);
+      this.addBot(this.botB);
     },
     start() {
       this.addInitialTrails();
@@ -129,10 +132,10 @@ export default {
     togglePause() {
       this.paused = !this.paused;
     },
-    mouseEnter() {
+    canvasMouseEnter() {
       this.mouseIsOnCanvas = true;
     },
-    mouseExit() {
+    canvasMouseLeave() {
       this.mouseIsOnCanvas = false;
     },
     addBotAtMousePos(bot) {
@@ -145,7 +148,7 @@ export default {
         return;
       }
 
-      this.addTrail(bot, gridPos);
+      this.addBot(bot, gridPos);
     },
     keyDown(keyEvent) {
       // Prevent multiple events when holding down a key:
@@ -204,7 +207,7 @@ export default {
     display: flex;
     gap: 10px;
 
-    .control {
+    .multi-control {
       display: inline-flex;
       flex-direction: column;
       align-items: baseline;
@@ -242,6 +245,7 @@ export default {
   min-height: 600px;
   font-family: "Courier New", Courier, monospace;
   font-size: small;
+  border: 3px solid #fff;
 }
 
 /* width */
