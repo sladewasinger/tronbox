@@ -1,6 +1,9 @@
 # ASW
 gittoken
 
+# Add bots to the proprietary folder for local safe-keeping
+**/ai/proprietary/*
+
 # Logs
 logs
 *.log

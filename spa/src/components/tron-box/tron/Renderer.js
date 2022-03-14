@@ -18,7 +18,7 @@ export class Renderer {
       This is the best solution I can come up with:
     */
     paper.projects.forEach(project => {
-      console.log("Unexpected project found. Removing...");
+      // console.log("Unexpected project found. Removing...");
       project.remove();
     });
     paper.setup(this.canvasId);

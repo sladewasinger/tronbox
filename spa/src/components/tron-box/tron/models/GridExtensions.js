@@ -5,7 +5,7 @@ export class Grid {
         if (!grid || !grid.length || !grid[0].length) {
             return;
         }
-        if (pos.x >= grid.length || pos.x < 0 || pos.y < 0 || pos.y >= grid[pos.x].length) {
+        if (pos.x >= grid.length || pos.x < 0 || pos.y < 0 || !grid[pos.x] || pos.y >= grid[pos.x].length) {
             return;
         }
         if (grid[pos.x][pos.y].occupied) {

@@ -14,7 +14,16 @@ export class Engine {
     this.reset();
   }
 
+  log() {
+    if (!this.debug) {
+      return;
+    }
+
+    console.log(...arguments);
+  }
+
   reset() {
+    this.debug = true;
     this.expired = false;
     this.path = null;
     this.point = {
@@ -29,7 +38,6 @@ export class Engine {
     this.createGrid();
   }
 
-  // TODO: Add "gameFinished" boolean value instead...
   get allBotsDead() {
     return this.trails.length && this.trails.every(x => !x.alive);
   }
@@ -55,9 +63,9 @@ export class Engine {
     return usrGetMove;
   }
 
-  addTrail(getMove_func, color, pos) {
+  addTrail(getMove_func, id, color, pos) {
     if (this.expired) {
-      console.log("Engine has expired - please reset before addinga new bot.");
+      this.log("Engine has expired - please reset before addinga new bot.");
       return;
     }
     pos = pos || Grid.getRandomValidPos(this.grid);
@@ -66,7 +74,7 @@ export class Engine {
     }
     color = color || ColorExtensions.getRandomColorHex();
 
-    var id = this.trails.length;
+    // var id = this.trails.length;
     var trail = new Trail(pos, color, id, getMove_func);
     this.trails.push(trail);
     this.setGridCellOwner(trail);
@@ -95,23 +103,23 @@ export class Engine {
         map.get(cur.id).points += 1;
         return map;
       }, new Map());
-    console.log(Array.from(pointMap.values()));
+
     if (pointMap.size < 1) {
-      console.log("No winners??");
+      this.log("No winners??");
       return;
     }
 
     let winners = Array.from(pointMap.values())
       .sort((a, b) => b.points - a.points);
 
-    console.log("\n\n\n");
-    console.log("#############################");
-    console.log("##         WINNERS         ##");
-    console.log("#############################");
+    this.log("\n\n\n");
+    this.log("#############################");
+    this.log("##         WINNERS         ##");
+    this.log("#############################");
     for (var winner of winners) {
       let trail = winner.trail;
       trail.points = winner.points;
-      console.log(`%c > %cTRAIL [${trail.id}] %c POINTS: ${trail.points}`, `color: auto`, `color: ${trail.color};`, `color: auto`);
+      this.log(`%c > %cTRAIL [${trail.id}] %c POINTS: ${trail.points}`, `color: auto`, `color: ${trail.color};`, `color: auto`);
       this.winners.push(trail);
     }
 
@@ -123,11 +131,13 @@ export class Engine {
       try {
         var moveDir = trail.getMove(this.grid, trail.head, this.trails.map(t => t.head), trail.state);
       } catch (ex) {
-        console.log("Error executing script: ", ex, trail.getMove);
+        this.log("Error executing script: ", ex, trail.getMove);
       }
 
-      if (!TrailMoveValidator.isValidMove(this.grid, trail, moveDir, this.trails)) {
+      let [validMove, logMsg] = TrailMoveValidator.isValidMove(this.grid, trail, moveDir, this.trails);
+      if (!validMove) {
         trail.alive = false;
+        this.log(...logMsg);
         continue;
       }
 

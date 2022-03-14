@@ -23,7 +23,7 @@
           />
         </div>
         <div class="winner-box">
-          <h2>Winners:</h2>
+          <h2>Points:</h2>
           <ol v-if="showWinnerText">
             <li v-for="winner in engine.winners" :key="winner.id">
               <b :style="`color: ${winner.color}`">TRAIL [{{ winner.id }}]</b>
@@ -37,19 +37,22 @@
           <div class="multi-control">
             <button class="btn btn-dark" @click="addBot(botA)">ADD [A]</button>
             <input id="colorPickerA" v-model="botA.color" type="color" />
+            <input v-model="botA.posTxt" type="text" class="pos-input" />
           </div>
           <div class="multi-control">
             <button class="btn btn-dark" @click="addBot(botB)">ADD [B]</button>
             <input id="colorPickerB" v-model="botB.color" type="color" />
+            <input v-model="botB.posTxt" type="text" class="pos-input" />
           </div>
           <button class="btn btn-dark" @click="clear">CLEAR</button>
-          <button class="btn btn-dark" @click="reset">RANDOM</button>
+          <button class="btn btn-dark" @click="randomizeBots">RANDOM</button>
           <button class="btn btn-dark" @click="togglePause">{{ pauseBtnText }}</button>
           <button class="btn btn-dark" @click="step">STEP</button>
+          <button class="btn btn-dark" @click="benchmark">BENCHMARK</button>
         </div>
 
-        <textarea v-model="botA.js" class="code-area" :style="`border-color: ${botA.prevColor}`"></textarea>
-        <textarea v-model="botB.js" class="code-area" :style="`border-color: ${botB.prevColor}`"></textarea>
+        <textarea v-model="botA.js" class="code-area" :style="`border-color: ${botA.color}`"></textarea>
+        <textarea v-model="botB.js" class="code-area" :style="`border-color: ${botB.color}`"></textarea>
       </div>
     </div>
   </div>
@@ -61,6 +64,7 @@ import { Engine } from "./tron/Engine";
 import clockwiseExampleAi from "raw-loader!./tron/ai/clockwise.ai.js"; /* Load the raw JS as a string */
 import counterclockwiseExampleAi from "raw-loader!./tron/ai/counterclockwise.ai.js"; /* Load the raw JS as a string */
 import { ColorExtensions } from "./tron/models/ColorExtensions";
+import { Point } from "./tron/models/Point";
 
 export default {
   name: "TronBox",
@@ -75,18 +79,22 @@ export default {
       js: undefined,
       color: "#FF0000",
       prevColor: "#FF0000",
+      posTxt: "0,0",
+      id: "A"
     },
     botB: {
       js: undefined,
       color: "#0000FF",
-      prevColor: "#0000FF"
+      prevColor: "#0000FF",
+      posTxt: "9,9",
+      id: "B"
     },
     renderer: undefined,
     engine: undefined,
     paused: true,
     mousePos: { x: 0, y: 0 },
     mouseIsOnCanvas: false,
-    lastKeyPressed: undefined,
+    lastKeyPressed: undefined
   }),
   computed: {
     pauseBtnText: function () {
@@ -94,7 +102,7 @@ export default {
     },
     showWinnerText: function () {
       return this.engine?.winners?.length > 0;
-    },
+    }
   },
   mounted() {
     window.addEventListener("keydown", this.keyDown);
@@ -106,11 +114,14 @@ export default {
     this.start();
   },
   methods: {
+    convertPosTxtToPoint(posTxt) {
+      let [m, x, y] = posTxt.match(/(\d+),(\d+)/);
+      return new Point(x, y);
+    },
     addBot(bot, pos) {
       let getMove = this.engine.parseRawJsIntoGetMoveFunction(bot.js);
-      this.engine.addTrail(getMove, bot.color, pos);
-      bot.prevColor = bot.color;
-      bot.color = ColorExtensions.getRandomColorHex();
+      pos = pos || this.convertPosTxtToPoint(bot.posTxt);
+      this.engine.addTrail(getMove, bot.id, bot.color, pos);
     },
     clear() {
       this.engine.reset();
@@ -119,9 +130,18 @@ export default {
     step() {
       this.engine.step();
     },
-    reset() {
+    randomizeBots() {
       this.clear();
+      this.randomizeBot(this.botA);
+      this.randomizeBot(this.botB);
       this.addInitialTrails();
+    },
+    randomizeBot(bot) {
+      bot.prevColor = bot.color;
+      bot.color = ColorExtensions.getRandomColorHex();
+
+      let rndNum = () => Math.floor(Math.random() * 10);
+      bot.posTxt = rndNum() + "," + rndNum();
     },
     addInitialTrails() {
       this.addBot(this.botA);
@@ -181,6 +201,52 @@ export default {
       this.renderer.render(this.engine);
       setTimeout(this.loop, 50);
     },
+    async benchmark() {
+
+      let maxIterations = 100;
+      let pointMap = new Map();
+      for (let i = 1; i <= maxIterations; i++) {
+        this.randomizeBots();
+        this.engine.debug = false;
+
+        // flip bot starting order every iteration:
+        let tempBot = this.botA;
+        this.botA = this.botB;
+        this.botB = tempBot;
+
+        while (!this.engine.expired) {
+          await new Promise(resolve => {
+            this.engine.step();
+            resolve();
+          });
+        }
+        let winners = this.engine.winners
+          .filter(x => x.points == this.engine.winners[0].points);
+        for (let winner of winners) {
+          if (!pointMap.has(winner.id)) {
+            pointMap.set(winner.id, {
+              ...winner,
+              wins: 0
+            });
+          }
+          if (winners.length == 1)
+            pointMap.get(winner.id).wins++;
+        }
+        console.log(`Running iteration ${i}/${maxIterations}`);
+      }
+      console.log("=================");
+      console.log("BENCHMARK RESULTS:");
+      // console.log(pointMap); // <-- Full data (works for > 2 bots);
+      let winsA = pointMap.get(this.botA.id).wins;
+      let winsB = pointMap.get(this.botB.id).wins;
+      let winsApercent = (winsA / maxIterations * 100).toFixed(1);
+      let winsBpercent = (winsB / maxIterations * 100).toFixed(1);
+      console.log(`Bot A wins: ${winsA}/${maxIterations} (${winsApercent}%)`);
+      console.log(`Bot B wins: ${winsB}/${maxIterations} (${winsBpercent}%)`);
+      console.log("      Ties: ", maxIterations - (winsA + winsB));
+
+      this.engine.debug = true;
+    }
   },
 };
 </script>
@@ -212,14 +278,20 @@ export default {
     padding-bottom: 5px;
     display: flex;
     gap: 10px;
+    align-items: flex-start;
 
     .multi-control {
       display: inline-flex;
       flex-direction: column;
       align-items: baseline;
       gap: 5px;
+
       * {
         width: 100%;
+      }
+
+      .pos-input {
+        max-width: 85px;
       }
     }
   }
