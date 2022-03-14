@@ -137,8 +137,8 @@ export default {
       this.addInitialTrails();
     },
     randomizeBot(bot) {
-      bot.prevColor = bot.color;
-      bot.color = ColorExtensions.getRandomColorHex();
+      //bot.prevColor = bot.color;
+      //bot.color = ColorExtensions.getRandomColorHex();
 
       let rndNum = () => Math.floor(Math.random() * 10);
       bot.posTxt = rndNum() + "," + rndNum();
@@ -202,8 +202,10 @@ export default {
       setTimeout(this.loop, 50);
     },
     async benchmark() {
-
-      let maxIterations = 100;
+      if (!window.BENCHMARK_MAX_ITERATIONS) {
+        window.BENCHMARK_MAX_ITERATIONS = 100;
+      }
+      let maxIterations = window.BENCHMARK_MAX_ITERATIONS;
       let pointMap = new Map();
       for (let i = 1; i <= maxIterations; i++) {
         this.randomizeBots();
