@@ -1,5 +1,5 @@
 // Clockwise bot - Example:
-function getMove(grid, headPos, heads) {
+function getMove(grid, headPos, heads, state) {
   var dir = Constants.MoveDirection;
 
   if (validMove(grid, headPos, dir.RIGHT)) return dir.RIGHT;

@@ -1,6 +1,9 @@
 import { Constants } from "./models/Constants";
 import { Point } from "paper/dist/paper-core";
 import { Grid } from "./models/GridExtensions";
+import { Trail } from "./models/Trail";
+import { ColorExtensions } from "./models/ColorExtensions";
+import { TrailMoveValidator } from "./models/TrailMoveValidator";
 
 export class Engine {
   constructor() {
@@ -12,6 +15,7 @@ export class Engine {
   }
 
   reset() {
+    this.expired = false;
     this.path = null;
     this.point = {
       x: 0,
@@ -46,50 +50,6 @@ export class Engine {
     }
   };
 
-  createTrail(x, y, color, id, getMove) {
-    let trail = {
-      head: new Point(x, y),
-      tail: [], // queue type?
-      color: color,
-      alive: true,
-      id: id,
-      getMove: getMove,
-      applyMove(grid, trails, headPos, moveDir) {
-        if (!moveDir || moveDir.x == undefined || moveDir.y == undefined) {
-          console.log("Error - moveDir is not a valid Point object. Killing trail. moveDir supplied:", moveDir);
-          this.alive = false;
-          return;
-        }
-        if (!Object.keys(Constants.MoveDirection).map(key => Constants.MoveDirection[key]).some(x => moveDir.x == x.x && moveDir.y == x.y)) {
-          console.log("Invalid move supplied! Killing trail. Move supplied: ", moveDir);
-          this.alive = false;
-          return;
-        }
-
-        let move = new Point(headPos.x + moveDir.x, headPos.y + moveDir.y);
-        if ((move.x < 0 || move.x >= grid.length) ||
-          (move.y < 0 || move.y >= grid[0].length)) {
-          console.log(`%cTRAIL [${this.id}] %ctried to escape the grid! They failed...`, 'color: ' + this.color, 'color: auto');
-          this.alive = false;
-          return;
-        }
-        if (grid[move.x][move.y].occupied) {
-          var otherTrailId = grid[move.x][move.y].id;
-          var otherTrail = trails.find(x => x.id == otherTrailId);
-          console.log(`%cTRAIL [${this.id}] %chit %cTRAIL [${otherTrail.id}]`, 'color: ' + this.color, 'color: auto', 'color: ' + otherTrail.color);
-          this.alive = false;
-          return;
-        }
-
-        this.tail.push(this.head);
-        this.head = move;
-        grid[trail.head.x][trail.head.y].id = trail.id;
-        return true;
-      },
-    };
-    return trail;
-  }
-
   parseRawJsIntoGetMoveFunction(raw_ai_js) {
     let usrGetMove = new Function('return getMove; ' + raw_ai_js)();
     return usrGetMove;
@@ -108,53 +68,25 @@ export class Engine {
     return pos;
   }
 
-  getRandomColor() {
-    var color = Constants.colors[this.colorIndex++];
-    if (this.colorIndex >= Constants.colors.length) {
-      console.log("No more colors to create a trail with...");
-      return;
-    }
-    return color;
-  }
-
   addTrail(getMove_func, color, pos) {
-    if (this.allBotsDead) {
-      console.log("All bots are dead - please reset before addinga new bot.");
+    if (this.expired) {
+      console.log("Engine has expired - please reset before addinga new bot.");
       return;
     }
-
     pos = pos || this.getRandomValidPos();
     if (!pos) {
       return;
     }
-    color = color || this.getRandomColor();
+    color = color || ColorExtensions.getRandomColorHex();
 
     var id = this.trails.length;
-    var trail = this.createTrail(pos.x, pos.y, color, id, getMove_func);
+    var trail = new Trail(pos, color, id, getMove_func);
     this.trails.push(trail);
-    this.grid[trail.head.x][trail.head.y].id = trail.id;
+    this.setGridCellOwner(trail);
   }
 
-  getRandomColor() {
-    const randomInt = (min, max) => {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
-    function hslToHex(h, s, l) {
-      l /= 100;
-      const a = s * Math.min(l, 1 - l) / 100;
-      const f = n => {
-        const k = (n + h / 30) % 12;
-        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-        return Math.round(255 * color).toString(16).padStart(2, '0');   // convert to Hex and prefix "0" if needed
-      };
-      return `#${f(0)}${f(8)}${f(4)}`;
-    }
-    var h = randomInt(0, 360);
-    var s = randomInt(50, 100);
-    var l = randomInt(30, 70);
-
-    return hslToHex(h, s, l);
+  setGridCellOwner(trail) {
+    this.grid[trail.head.x][trail.head.y].id = trail.id;
   }
 
   determineWinners() {
@@ -208,29 +140,35 @@ export class Engine {
       console.log(`%c!!!! %cTRAIL [${trail.id}] %c${wonortiedText} WITH ${tempWinner.points} POINTS!!!!`, `color: auto`, `color: ${trail.color};`, `color: auto`);
       this.winners.push(trail);
     }
+
+    this.expired = true;
   }
 
   iterateTrails() {
-    let atLeastOneMoveMade = false;
     for (let trail of this.trails.filter(x => x.alive)) {
-        try {
-            var move = trail.getMove(this.grid, trail.head, this.trails.map(t => t.head));
+      try {
+        var moveDir = trail.getMove(this.grid, trail.head, this.trails.map(t => t.head), trail.state);
       } catch (ex) {
         console.log("Error executing script: ", ex, trail.getMove);
       }
-      let moveWasMade = trail.applyMove(this.grid, this.trails, trail.head, move) || false;
-      if (moveWasMade) {
-        atLeastOneMoveMade = true;
+
+      if (!TrailMoveValidator.isValidMove(this.grid, trail, moveDir, this.trails)) {
+        trail.alive = false;
+        continue;
       }
-    }
-    if (this.allBotsDead) {
-      this.determineWinners();
+
+      let move = trail.head.add(moveDir);
+      trail.applyMove(move);
+      this.setGridCellOwner(trail);
     }
   }
 
   step() {
-    if (!this.allBotsDead) {
+    if (!this.expired && !this.allBotsDead) {
       this.iterateTrails();
+    }
+    if (!this.expired && this.allBotsDead) {
+      this.determineWinners();
     }
   }
 }

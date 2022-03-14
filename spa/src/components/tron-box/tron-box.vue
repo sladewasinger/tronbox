@@ -4,26 +4,27 @@
       <h1>Battle Tron</h1>
     </div>
     <div class="flex-box-row">
-      <div>
-        <!-- Canvas will default to 300 x 150 if width and height aren't manually set -->
-
-        <p class="tip">
-          Press 'a' or 'b' on the keyboard to place a bot at your mouse
-          position!
-        </p>
-        <canvas
-          :id="canvasId"
-          ref="canvas"
-          width="500"
-          class="canvas-style"
-          height="500"
-          @mousemove="mouseMove"
-          @mouseenter="canvasMouseEnter"
-          @mouseleave="canvasMouseLeave"
-        />
-        <div v-if="showWinnerText">
+      <div class="flex-box-row no-gap">
+        <div>
+          <p class="tip">
+            Press 'a' or 'b' on the keyboard to place a bot at your mouse
+            position!
+          </p>
+          <!-- Canvas will default to 300 x 150 if width and height aren't manually set -->
+          <canvas
+            :id="canvasId"
+            ref="canvas"
+            width="500"
+            class="canvas-style"
+            height="500"
+            @mousemove="mouseMove"
+            @mouseenter="canvasMouseEnter"
+            @mouseleave="canvasMouseLeave"
+          />
+        </div>
+        <div class="winner-box">
           <h2>Winners:</h2>
-          <ol>
+          <ol v-if="showWinnerText">
             <li v-for="winner in engine.winners" :key="winner.id">
               <b :style="`color: ${winner.color}`">TRAIL [{{ winner.id }}]</b>
               - POINTS: {{ winner.points }}
@@ -59,6 +60,7 @@ import { Renderer } from "./tron/Renderer";
 import { Engine } from "./tron/Engine";
 import clockwiseExampleAi from "raw-loader!./tron/ai/clockwise.ai.js"; /* Load the raw JS as a string */
 import counterclockwiseExampleAi from "raw-loader!./tron/ai/counterclockwise.ai.js"; /* Load the raw JS as a string */
+import { ColorExtensions } from "./tron/models/ColorExtensions";
 
 export default {
   name: "TronBox",
@@ -108,7 +110,7 @@ export default {
       let getMove = this.engine.parseRawJsIntoGetMoveFunction(bot.js);
       this.engine.addTrail(getMove, bot.color, pos);
       bot.prevColor = bot.color;
-      bot.color = this.engine.getRandomColor();
+      bot.color = ColorExtensions.getRandomColorHex();
     },
     clear() {
       this.engine.reset();
@@ -189,6 +191,10 @@ export default {
   color: #999;
 }
 
+.winner-box {
+  width: 250px;
+}
+
 .canvas-style {
   width: 100%;
   height: 100%;
@@ -223,6 +229,19 @@ export default {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 50px;
+}
+
+.no-gap {
+  gap: 0px;
+}
+
+.flex-box-col {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
   align-items: flex-start;
   gap: 50px;
