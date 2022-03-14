@@ -178,7 +178,7 @@ export default {
       if (!this.paused) {
         this.engine.step();
       }
-      this.renderer.render(this.engine.grid, this.engine.trails);
+      this.renderer.render(this.engine);
       setTimeout(this.loop, 50);
     },
   },

@@ -55,25 +55,12 @@ export class Engine {
     return usrGetMove;
   }
 
-  getRandomValidPos() {
-    var openSpots = Grid
-      .flatten(this.grid)
-      .filter(x => !x.occupied);
-
-    if (openSpots.length < 1) {
-      console.log("No open spots to spawn in a tron bike!");
-      return;
-    }
-    var pos = openSpots[Math.floor(Math.random() * openSpots.length)].gridPosition;
-    return pos;
-  }
-
   addTrail(getMove_func, color, pos) {
     if (this.expired) {
       console.log("Engine has expired - please reset before addinga new bot.");
       return;
     }
-    pos = pos || this.getRandomValidPos();
+    pos = pos || Grid.getRandomValidPos(this.grid);
     if (!pos) {
       return;
     }
@@ -97,47 +84,34 @@ export class Engine {
     var pointMap = Grid
       .flatten(this.grid)
       .filter(x => x.occupied)
-      .reduce((prev, cur) => {
-        if (!prev[cur.id]) {
-          prev[cur.id] = {
+      .reduce((map, cur) => {
+        if (!map.has(cur.id)) {
+          map.set(cur.id, {
             points: 0,
-            id: cur.id
-          };
+            trail: this.trails.find(x => x.id == cur.id)
+          });
         }
-        prev[cur.id].points += 1;
-        return prev;
-      }, {});
 
-    if (Object.keys(pointMap).length < 1) {
+        map.get(cur.id).points += 1;
+        return map;
+      }, new Map());
+    console.log(Array.from(pointMap.values()));
+    if (pointMap.size < 1) {
+      console.log("No winners??");
       return;
     }
 
-    let mostPoints = Object.keys(pointMap)
-      .map(key => pointMap[key])
-      .sort((a, b) => b.points - a.points)
-    [0].points;
-
-    let tempWinners = Object.keys(pointMap)
-      .map(key => pointMap[key])
-      .filter(x => x.points == mostPoints);
-
-    for (var trail of Object.keys(pointMap).map(key => pointMap[key])) {
-      console.log(`TRAIL [${trail.id}] has ${trail.points} points.`);
-    }
+    let winners = Array.from(pointMap.values())
+      .sort((a, b) => b.points - a.points);
 
     console.log("\n\n\n");
     console.log("#############################");
     console.log("##         WINNERS         ##");
     console.log("#############################");
-    var wonortiedText = 'WON';
-    if (tempWinners.length > 1) {
-      console.log(" -- IT'S A TIE! -- ");
-      wonortiedText = 'TIED'
-    }
-    for (var tempWinner of tempWinners) {
-      let trail = this.trails.find(x => x.id == tempWinner.id);
-      trail.points = tempWinner.points;
-      console.log(`%c!!!! %cTRAIL [${trail.id}] %c${wonortiedText} WITH ${tempWinner.points} POINTS!!!!`, `color: auto`, `color: ${trail.color};`, `color: auto`);
+    for (var winner of winners) {
+      let trail = winner.trail;
+      trail.points = winner.points;
+      console.log(`%c > %cTRAIL [${trail.id}] %c POINTS: ${trail.points}`, `color: auto`, `color: ${trail.color};`, `color: auto`);
       this.winners.push(trail);
     }
 

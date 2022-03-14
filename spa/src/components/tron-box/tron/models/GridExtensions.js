@@ -22,4 +22,17 @@ export class Grid {
             }))
             .flatMap(x => x);
     }
+
+    static getRandomValidPos(grid) {
+        var openSpots = Grid
+            .flatten(grid)
+            .filter(x => !x.occupied);
+
+        if (openSpots.length < 1) {
+            console.log("No open spots to spawn in a tron bike!");
+            return;
+        }
+        var pos = openSpots[Math.floor(Math.random() * openSpots.length)].gridPosition;
+        return pos;
+    }
 }

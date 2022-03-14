@@ -47,7 +47,13 @@ export class Renderer {
     return undefined;
   }
 
-  render(grid, trails) {
+  render(engine) {
+    let grid = engine.grid;
+    let trails = engine.trails;
+    if (grid.expired) {
+      return;
+    }
+
     if (this.grid === undefined) {
       var cellWidth = 50;
 
