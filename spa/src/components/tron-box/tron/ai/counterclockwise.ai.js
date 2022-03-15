@@ -2,6 +2,11 @@
 function getMove(grid, headPos, heads, state) {
   var dir = Constants.MoveDirection;
 
+  // Store persistent data in the state object:
+  state.counter = state.counter || 0;
+  state.counter++;
+  // console.log(state.counter);
+
   if (validMove(grid, headPos, dir.LEFT)) return dir.LEFT;
   if (validMove(grid, headPos, dir.DOWN)) return dir.DOWN;
   if (validMove(grid, headPos, dir.RIGHT)) return dir.RIGHT;

@@ -51,8 +51,14 @@
           <button class="btn btn-dark" @click="benchmark">BENCHMARK</button>
         </div>
 
-        <textarea v-model="botA.js" class="code-area" :style="`border-color: ${botA.color}`"></textarea>
-        <textarea v-model="botB.js" class="code-area" :style="`border-color: ${botB.color}`"></textarea>
+        <div>
+          <h6>BOT A:</h6>
+          <textarea v-model="botA.js" class="code-area" :style="`border-color: ${botA.color}`"></textarea>
+        </div>
+        <div>
+          <h6>BOT B:</h6>
+          <textarea v-model="botB.js" class="code-area" :style="`border-color: ${botB.color}`"></textarea>
+        </div>
       </div>
     </div>
   </div>
@@ -272,8 +278,16 @@ export default {
   box-shadow: 0 0 18px 5px black;
 }
 
+.editor > div {
+  width: 100%;
+}
+
 .editor {
   min-width: 700px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: baseline;
+  gap: 25px;
 
   .controls {
     text-align: left;
