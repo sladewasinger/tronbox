@@ -134,10 +134,10 @@ export class Engine {
         this.log("Error executing script: ", ex, trail.getMove);
       }
 
-      let [validMove, logMsg] = TrailMoveValidator.isValidMove(this.grid, trail, moveDir, this.trails);
+      let [validMove, logMsgs] = TrailMoveValidator.isValidMove(this.grid, trail, moveDir, this.trails);
       if (!validMove) {
         trail.alive = false;
-        this.log(...logMsg);
+        this.log(...logMsgs);
         continue;
       }
 
