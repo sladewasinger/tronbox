@@ -1,7 +1,7 @@
 <template>
   <div class="grid-box">
     <div class="header">
-      <h1>Battle Tron</h1>
+      <h1>Tron Battle Bots</h1>
     </div>
     <div class="flex-box-row">
       <div class="flex-box-row no-gap">
