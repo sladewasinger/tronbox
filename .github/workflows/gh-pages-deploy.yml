@@ -4,14 +4,19 @@ on:
     branches:
       - main
 jobs:
-  build_vue:
+  gh-pages-deploy:
+    name: Deploying to Github Pages
     runs-on: ubuntu-latest
-    name: Build Vue
     steps:
       - uses: actions/checkout@v2
-      - id: Build-Vue
-        uses: xRealNeon/VuePagesAction@1.0.1
+      - uses: actions/setup-node@v2
         with:
-          username: "sladewasinger"
-          reponame: "tronbox"
-          token: ${{ secrets.GITHUB_TOKEN }} # Leave this line unchanged
+          node-version: "16"
+      - name: Set Creds
+        run: git config user.name "sladewasinger"
+      - name: Install packages
+        run: npm i
+        working-directory: ./spa
+      - name: Deploy
+        run: npm run deploy
+        working-directory: ./spa
