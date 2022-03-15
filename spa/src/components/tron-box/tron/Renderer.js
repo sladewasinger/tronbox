@@ -1,7 +1,7 @@
 import { Point } from "paper/dist/paper-core";
 import { Grid } from "./models/GridExtensions";
 
-const paper = require("paper");
+const paper = require('paper');
 
 export class Renderer {
   constructor(canvasId) {
