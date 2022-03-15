@@ -1,7 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   publicPath: '/tronbox/',
-  outputDir: '../docs',
+  outputDir: './dist',
   devServer: {
     proxy: {
       '^/api': {

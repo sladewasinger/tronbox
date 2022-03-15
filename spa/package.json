@@ -5,7 +5,8 @@
   "scripts": {
     "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "deploy": "node gh-scripts/gh-pages-deploy.js"
   },
   "dependencies": {
     "bootstrap": "^5.1.3",
@@ -25,6 +26,7 @@
     "@vue/cli-service": "^5.0.1",
     "eslint": "^8.10.0",
     "eslint-plugin-vue": "^8.5.0",
+    "execa": "^6.1.0",
     "node-sass": "^7.0.1",
     "raw-loader": "^4.0.2",
     "sass-loader": "^12.6.0"
