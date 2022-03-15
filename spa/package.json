@@ -6,7 +6,7 @@
     "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "deploy": "node scripts/gh-pages-deploy.js"
+    "deploy": "node scripts/gh-pages-deploy.mjs"
   },
   "dependencies": {
     "bootstrap": "^5.1.3",
