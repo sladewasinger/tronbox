@@ -1,5 +1,5 @@
 import { Constants } from "./models/Constants";
-import { Point } from "paper/dist/paper-core";
+import { Point as PaperPoint } from "paper/dist/paper-core";
 import { Grid } from "./models/GridExtensions";
 import { Trail } from "./models/Trail";
 import { ColorExtensions } from "./models/ColorExtensions";
@@ -8,7 +8,7 @@ import { TrailMoveValidator } from "./models/TrailMoveValidator";
 export class Engine {
   constructor() {
     window.Constants = Constants;
-    window.Point = Point;
+    window.Point = PaperPoint;
     window.Grid = Grid;
 
     this.reset();
