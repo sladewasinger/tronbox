@@ -1,7 +1,7 @@
 import { Point } from "./Point";
 
 export class TrailMoveValidator {
-    static isValidMove(grid, trail, moveDir, trails) {
+    static isValidMoveDir(grid, trail, moveDir, trails) {
         if (!moveDir || moveDir.x == undefined || moveDir.y == undefined) {
             return [false, ["Error - moveDir is not a valid Point object. Killing trail. moveDir supplied:", moveDir]];
         }

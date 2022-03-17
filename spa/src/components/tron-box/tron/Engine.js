@@ -134,16 +134,35 @@ export class Engine {
         this.log("Error executing script: ", ex, trail.getMove);
       }
 
-      let [validMove, logMsgs] = TrailMoveValidator.isValidMove(this.grid, trail, moveDir, this.trails);
-      if (!validMove) {
+      let [isValidMove, logMsgs] = TrailMoveValidator.isValidMoveDir(this.grid, trail, moveDir, this.trails);
+      if (!isValidMove) {
         trail.alive = false;
         this.log(...logMsgs);
         continue;
       }
 
-      let move = trail.head.add(moveDir);
-      trail.applyMove(move);
-      this.setGridCellOwner(trail);
+      let movePos = trail.head.add(moveDir);
+      trail.nextMovePos = movePos;
+    }
+    let aliveTrails = this.trails.filter(x => x.alive);
+    for (let i = 0; i < aliveTrails.length; i++) {
+      let trail1 = aliveTrails[i];
+      for (let j = i + 1; j < aliveTrails.length; j++) {
+        let trail2 = aliveTrails[j];
+        if (trail1.nextMovePos.x == trail2.nextMovePos.x
+          && trail1.nextMovePos.y == trail2.nextMovePos.y) {
+          trail1.alive = false;
+          trail2.alive = false;
+          this.log(`TRAIL [${trail1.id}] and TRAIL [${trail2.id}] tried to occupy the same space: (${trail1.nextMovePos.x},${trail1.nextMovePos.y})`);
+        }
+      }
+      let movePos = trail1.nextMovePos;
+      trail1.nextMovePos = undefined;
+      if (!trail1.alive) {
+        continue;
+      }
+      trail1.applyMove(movePos);
+      this.setGridCellOwner(trail1);
     }
   }
 
