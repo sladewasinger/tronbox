@@ -42,14 +42,8 @@ There are 3 options for storing the deployment files:
 - In the `/(root)` of the **master** branch
 - In the `/(root)` of the **gh-pages** branch
 
-I have chosen the `docs/` folder in the main branch.
+I have chosen the `/(root)` folder in the `gh-pages` branch.
 
-To get a fresh build, simply:
+To get a fresh build, simply push changes to the master branch! I setup a github action™ to automatically build the Vue app, and then the github pages bot will take care of the actual deployment automatically.
 
-- `cd spa/`
-- `npm run build`
-- Verify the docs/ folder has been updated.
-- `cd ..`
-- git add, commit, and push
-
-The [github deployments](https://github.com/sladewasinger/tronbox/deployments) page will eventually release a new deployment when it detects changes to the `docs/` folder
+The [github deployments](https://github.com/sladewasinger/tronbox/deployments) page will show deployments.
