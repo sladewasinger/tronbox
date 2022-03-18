@@ -129,7 +129,14 @@ export class Engine {
   iterateTrails() {
     for (let trail of this.trails.filter(x => x.alive)) {
       try {
-        var moveDir = trail.getMove(this.grid, trail.head, this.trails.map(t => t.head), trail.id, trail.state);
+        var moveDir = trail.getMove(
+          this.grid,
+          trail.head,
+          trail.id,
+          /* remove certain "secrets" from trails before passing to getMove: */
+          this.trails.map(t => ({ ...t, getMove: undefined, state: undefined })),
+          trail.state
+        );
       } catch (ex) {
         this.log("Error executing script: ", ex, trail.getMove);
       }

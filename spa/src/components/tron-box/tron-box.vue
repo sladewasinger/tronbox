@@ -69,6 +69,7 @@ import { Renderer } from "./tron/Renderer";
 import { Engine } from "./tron/Engine";
 import clockwiseExampleAi from "raw-loader!./tron/ai/clockwise.ai.js"; /* Load the raw JS as a string */
 import counterclockwiseExampleAi from "raw-loader!./tron/ai/counterclockwise.ai.js"; /* Load the raw JS as a string */
+import minimax from "raw-loader!./tron/ai/minimax.ai.js";
 import { ColorExtensions } from "./tron/models/ColorExtensions";
 import { Point } from "./tron/models/Point";
 
@@ -82,17 +83,17 @@ export default {
   },
   data: () => ({
     botA: {
-      js: undefined,
+      js: minimax,
       color: "#FF0000",
       prevColor: "#FF0000",
-      posTxt: "0,0",
+      posTxt: "2,1",
       id: "A"
     },
     botB: {
-      js: undefined,
+      js: clockwiseExampleAi,
       color: "#0000FF",
       prevColor: "#0000FF",
-      posTxt: "9,9",
+      posTxt: "7,0",
       id: "B"
     },
     renderer: undefined,
@@ -115,8 +116,6 @@ export default {
     window.addEventListener("keyup", this.keyUp);
     this.renderer = new Renderer(this.canvasId);
     this.engine = new Engine();
-    this.botA.js = clockwiseExampleAi;
-    this.botB.js = counterclockwiseExampleAi;
     this.start();
   },
   methods: {

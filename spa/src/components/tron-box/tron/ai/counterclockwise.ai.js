@@ -1,5 +1,5 @@
 // Counter-Clockwise bot - Example:
-function getMove(grid, headPos, heads, id, state) {
+function getMove(grid, headPos, myTrailId, trails, state) {
   var dir = Constants.MoveDirection;
 
   // Store persistent data in the state object:

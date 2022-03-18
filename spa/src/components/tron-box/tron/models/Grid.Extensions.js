@@ -52,9 +52,7 @@ export class Grid {
     }
 
     static copy(grid) {
-        console.log(grid);
         let copy = grid.map(col => [...col]);
-        console.log("copy:", copy);
         return copy;
     }
 }
