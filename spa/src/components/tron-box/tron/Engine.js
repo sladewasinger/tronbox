@@ -1,6 +1,6 @@
 import { Constants } from "./models/Constants";
 import { Point as PaperPoint } from "paper/dist/paper-core";
-import { Grid } from "./models/GridExtensions";
+import { Grid } from "./models/Grid.Extensions";
 import { Trail } from "./models/Trail";
 import { ColorExtensions } from "./models/ColorExtensions";
 import { TrailMoveValidator } from "./models/TrailMoveValidator";
@@ -47,13 +47,7 @@ export class Engine {
     for (var x = 0; x < this.gridWidth; x++) {
       this.grid[x] = [];
       for (var y = 0; y < this.gridWidth; y++) {
-        var cell = {
-          id: undefined,
-          get occupied() {
-            return this.id != undefined;
-          }
-        };
-        this.grid[x].push(cell);
+        this.grid[x].push(undefined);
       }
     }
   };
@@ -86,7 +80,8 @@ export class Engine {
   }
 
   setGridCellOwner(trail) {
-    this.grid[trail.head.x][trail.head.y].id = trail.id;
+    Grid.setOwner(this.grid, trail.head, trail.id);
+    //this.grid[trail.head.x][trail.head.y].id = trail.id;
   }
 
   determineWinners() {
@@ -96,7 +91,7 @@ export class Engine {
 
     var pointMap = Grid
       .flatten(this.grid)
-      .filter(x => x.occupied)
+      .filter(x => Grid.isOccupied(this.grid, x.position))
       .reduce((map, cur) => {
         if (!map.has(cur.id)) {
           map.set(cur.id, {
@@ -134,7 +129,7 @@ export class Engine {
   iterateTrails() {
     for (let trail of this.trails.filter(x => x.alive)) {
       try {
-        var moveDir = trail.getMove(this.grid, trail.head, this.trails.map(t => t.head), trail.state);
+        var moveDir = trail.getMove(this.grid, trail.head, this.trails.map(t => t.head), trail.id, trail.state);
       } catch (ex) {
         this.log("Error executing script: ", ex, trail.getMove);
       }

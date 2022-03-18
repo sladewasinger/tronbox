@@ -1,4 +1,5 @@
 import { Point } from "./Point";
+import { Grid } from "./Grid.Extensions";
 
 export class TrailMoveValidator {
     static isValidMoveDir(grid, trail, moveDir, trails) {
@@ -14,8 +15,8 @@ export class TrailMoveValidator {
             (move.y < 0 || move.y >= grid[move.x].length)) {
             return [false, [`%cTRAIL [${trail.id}] %ctried to escape the grid! They failed...`, 'color: ' + trail.color, 'color: auto']];
         }
-        if (grid[move.x][move.y].occupied) {
-            var otherTrailId = grid[move.x][move.y].id;
+        if (Grid.isOccupied(grid, move)) {
+            var otherTrailId = grid[move.x][move.y];
             var otherTrail = trails.find(x => x.id == otherTrailId);
             return [false, [`%cTRAIL [${trail.id}] %chit %cTRAIL [${otherTrail.id}]`, 'color: ' + trail.color, 'color: auto', 'color: ' + otherTrail.color]];
         }

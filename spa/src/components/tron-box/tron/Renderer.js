@@ -1,5 +1,5 @@
 import { Point } from "paper/dist/paper-core";
-import { Grid } from "./models/GridExtensions";
+import { Grid } from "./models/Grid.Extensions";
 
 const paper = require('paper');
 
@@ -36,8 +36,12 @@ export class Renderer {
       return;
     }
 
-    var intersectingCell = Grid
-      .flatten(this.grid)
+    var intersectingCell = this.grid
+      .map((col, x) => col.map((cell, y) => {
+        cell.gridPosition = new Point(x, y);
+        return cell;
+      }))
+      .flatMap(cell => cell)
       .find(x => x.hitTest(new Point(mousePos.x, mousePos.y)));
 
     if (intersectingCell) {

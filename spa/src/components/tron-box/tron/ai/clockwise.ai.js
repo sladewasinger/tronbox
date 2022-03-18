@@ -1,16 +1,16 @@
 // Clockwise bot - Example:
-function getMove(grid, headPos, heads, state) {
+function getMove(grid, headPos, heads, id, state) {
   var dir = Constants.MoveDirection;
 
-  if (validMove(grid, headPos, dir.RIGHT)) return dir.RIGHT;
-  if (validMove(grid, headPos, dir.DOWN)) return dir.DOWN;
-  if (validMove(grid, headPos, dir.LEFT)) return dir.LEFT;
-  if (validMove(grid, headPos, dir.UP)) return dir.UP;
+  if (isValidMove(grid, headPos, dir.RIGHT)) return dir.RIGHT;
+  if (isValidMove(grid, headPos, dir.DOWN)) return dir.DOWN;
+  if (isValidMove(grid, headPos, dir.LEFT)) return dir.LEFT;
+  if (isValidMove(grid, headPos, dir.UP)) return dir.UP;
 
   return dir.RIGHT;
 }
 
-function validMove(grid, headPos, move) {
+function isValidMove(grid, headPos, move) {
   var nextPos = new Point(headPos.x + move.x, headPos.y + move.y);
   var isOccupied = Grid.isOccupied(grid, nextPos);
 
