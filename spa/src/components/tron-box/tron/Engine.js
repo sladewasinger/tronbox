@@ -74,6 +74,11 @@ export class Engine {
     }
     color = color || ColorExtensions.getRandomColorHex();
 
+    let idUniqueifier = 0;
+    let origId = id;
+    while (this.trails.some(x => x.id == id)) {
+      id = origId + idUniqueifier++;
+    }
     // var id = this.trails.length;
     var trail = new Trail(pos, color, id, getMove_func);
     this.trails.push(trail);

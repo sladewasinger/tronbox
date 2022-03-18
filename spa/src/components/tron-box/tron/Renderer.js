@@ -49,7 +49,7 @@ export class Renderer {
 
   render(engine) {
     let grid = engine.grid;
-    let trails = engine.trails.map((t, i) => ({ ...t, id: i }));
+    let trails = engine.trails;
     if (grid.expired) {
       return;
     }
