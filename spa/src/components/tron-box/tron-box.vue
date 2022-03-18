@@ -86,14 +86,14 @@ export default {
       js: minimax,
       color: "#FF0000",
       prevColor: "#FF0000",
-      posTxt: "2,1",
+      posTxt: "2,7",
       id: "A"
     },
     botB: {
       js: clockwiseExampleAi,
       color: "#0000FF",
       prevColor: "#0000FF",
-      posTxt: "7,0",
+      posTxt: "7,9",
       id: "B"
     },
     renderer: undefined,

@@ -1,19 +1,22 @@
-
 // minimax bot - ASW:
 function getMove(grid, headPos, myTrailId, trails, state) {
   var dir = Constants.MoveDirection;
 
   let opponent = trails.find(x => x.id != myTrailId);
 
-  let bestScore = -Infinity;
-  let move = dir.UP;
+  let bestScore = calculateScore(grid, headPos);
   let validMoves = getAdjMoves(grid, headPos);
+  let move = validMoves[0] || dir.UP;
   for (var validMove of validMoves) {
-    //console.log("tesing move:", validMove, " head pos", headPos);
-
+    //console.log("tesing move:", validMove, " head pos", headPos, " opp: ", opponent.head);
     let gridCopy = Grid.copy(grid);
+    //Grid.setOwner(gridCopy, headPos, myTrailId);
     Grid.setOwner(gridCopy, headPos.add(validMove), myTrailId);
-    let score = minimax(gridCopy, headPos.add(validMove), myTrailId, opponent.head, opponent.id, 5, trails, false);
+    if (distance(headPos.add(validMove), opponent.head) <= 1.1) {
+      //console.log("********************* Alert!");
+      continue;
+    }
+    let score = minimax(gridCopy, headPos.add(validMove), myTrailId, opponent.head, opponent.id, 3, trails, true);
     if (score > bestScore) {
       //console.log("picking move ", validMove, " for score: ", score);
       bestScore = score;
@@ -35,50 +38,54 @@ function getMove(grid, headPos, myTrailId, trails, state) {
 
 function distance(pos1, pos2) {
   let dis = Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
-  //console.log(dis);
   return dis;
 }
 
 function minimax(grid, headPos, myId, opponentHeadPos, opponentId, depth, trails, maximizing = true) {
-  // Check winner?
-  /* if (trails)
-  */
+  // TODO: Check for winner first?
+
   if (maximizing) {
-    if (depth <= 0) return calculateScore(grid, myId);
+    if (depth < 0) return calculateScore(grid, myId);
 
     let bestScore = -Infinity;
+    //console.log('.'.repeat(2 - depth) + "[MAX] headPos: ", headPos, ' opp: ', opponentHeadPos);
     let validMoves = getAdjMoves(grid, headPos);
     for (let move of validMoves) {
-      //console.log('MAXimizing move', move, " head pos ", headPos.add(move));
-      if (distance(headPos, opponentHeadPos) <= 2.1) {
-        //console.log("[MAX] Dis < 1");
+      //console.log('.'.repeat(2 - depth) + '[MAX] test move', move, " head pos ", headPos.add(move), " opponent: ", opponentHeadPos);
+      let dis = distance(headPos.add(move), opponentHeadPos);
+      if (dis < 1) {
         if (calculateScore(grid, myId) <= calculateScore(grid, opponentId)) {
-          //console.log("Punishing move?");
-          bestScore -= 1;
+          //console.log("[MAX] potential death", headPos.add(move), opponentHeadPos);
+          bestScore -= 2;
         }
       }
-
       let gridCopy = Grid.copy(grid);
-      Grid.setOwner(gridCopy, headPos.add(move), myId)
       let score = minimax(gridCopy, headPos.add(move), myId, opponentHeadPos, opponentId, depth - 1, trails, false);
+      Grid.setOwner(gridCopy, headPos.add(move), myId)
       bestScore = Math.max(score, bestScore);
       //console.log('MAX best score ', bestScore);
     }
     return bestScore;
   } else {
-    if (depth <= 0) return calculateScore(grid, myId);
+    if (depth < 0) return calculateScore(grid, myId);
 
     let bestScore = Infinity;
+    //console.log('.'.repeat(2 - depth) + "[min] headPos: ", headPos, ' opp: ', opponentHeadPos);
     let validMoves = getAdjMoves(grid, opponentHeadPos);
+    if (validMoves.length < 1) {
+      //console.log("[min] no valid moves headPos: ", headPos, " opponentHeadPos: ", opponentHeadPos);
+      return 0;
+    }
     for (let move of validMoves) {
-      //console.log('minimizing move', move, " head pos ", opponentHeadPos.add(move));
-      if (distance(headPos, opponentHeadPos) <= 2.1) {
-        //console.log("[MAX] Dis < 1");
-        if (calculateScore(grid, myId) > calculateScore(grid, opponentId)) {
+      //console.log('.'.repeat(2 - depth) + '[min] test move', move, " head pos ", headPos, " opp: ", opponentHeadPos.add(move));
+      let dis = distance(headPos, opponentHeadPos.add(move));
+      if (dis <= 1.1) { // if dis == 1 then we are adj and cannot die.
+        if (calculateScore(grid, myId) >= calculateScore(grid, opponentId)) {
+          //console.log("[MIN] potential death", headPos, opponentHeadPos.add(move));
           bestScore += 1;
+          break;
         }
       }
-
       let gridCopy = Grid.copy(grid);
       Grid.setOwner(gridCopy, opponentHeadPos.add(move), opponentId)
       let score = minimax(gridCopy, headPos, myId, opponentHeadPos.add(move), opponentId, depth - 1, trails, true);
